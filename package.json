@@ -1,0 +1,15 @@
+{
+  "name": "scalable-blog-backend",
+  "version": "1.0.0",
+  "description": "Scalable blog backend",
+  "main": "main.js",
+  "scripts": {
+    "test": "nodemon src/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "mongoose": "^5.3.14"
+  }
+}
