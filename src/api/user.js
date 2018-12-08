@@ -26,22 +26,22 @@ const query = `
 
 const resolver = {
     Query: {
-        user: (obj, args) => {
+        user(obj, args) {
             return user.getUser(args)
                 .then(userData => userData);
         },
-        getAllUsers: () => {
+        getAllUsers() {
 
         },
-        register: (obj, args) => {
+        register(obj, args) {
             return user.registerUser(args)
-                .then(userData => userData)
+                .then(userData => userData);
         },
-        login: (obj, args) => {
+        login(obj, args) {
             return user.loginUser(args)
-                .then(userData => userData)
+                .then(userData => userData);
         }
     }
 };
 
-module.exports = { typeDef, query, resolver };
+module.exports = {typeDef, query, resolver};

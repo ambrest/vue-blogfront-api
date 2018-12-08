@@ -1,7 +1,7 @@
 const express = require('express');
 
 const graphqlHTTP = require('express-graphql');
-const { makeExecutableSchema } = require('graphql-tools');
+const {makeExecutableSchema} = require('graphql-tools');
 
 // API Points
 const info = require('./info.js');
@@ -26,7 +26,7 @@ const typeDefs = [query, info.typeDef, user.typeDef, post.typeDef];
 
 const baseResolver = {
     Query: {
-        schema: () => {
+        schema() {
             return typeDefs;
         }
     }

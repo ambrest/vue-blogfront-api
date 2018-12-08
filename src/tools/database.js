@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/blog', { useNewUrlParser: true });
+mongoose.connect('mongodb://localhost/blog', {useNewUrlParser: true});
 
 // Schema for a post
-const postSchema = mongoose.model('Post', {
+const postModel = mongoose.model('Post', {
     postid: String,
     title: String,
     author: String,
@@ -11,7 +11,7 @@ const postSchema = mongoose.model('Post', {
 });
 
 // User Schema
-const userSchema = mongoose.model('User', {
+const userModel = mongoose.model('User', {
     username: String,
     apikey: String,
     userid: String,
@@ -24,5 +24,4 @@ const userSchema = mongoose.model('User', {
     deactivated: Boolean
 });
 
-
-module.exports = { userSchema, postSchema };
+module.exports = {userModel, postModel};

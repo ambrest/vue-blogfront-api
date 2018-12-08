@@ -4,10 +4,12 @@
   "description": "Scalable blog backend",
   "main": "main.js",
   "scripts": {
-    "test": "nodemon src/main.js"
+    "test": "nodemon ./src/app.js",
+    "launch": "node ./src/app.js",
+    "lint": "eslint ./src"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Ambrest Designs LLC",
+  "license": "MIT",
   "dependencies": {
     "bcrypt": "^3.0.2",
     "express": "^4.16.4",
@@ -16,5 +18,8 @@
     "graphql-tools": "^4.0.3",
     "mongodb": "^3.1.10",
     "mongoose": "^5.3.14"
+  },
+  "devDependencies": {
+    "eslint": "^5.10.0"
   }
 }

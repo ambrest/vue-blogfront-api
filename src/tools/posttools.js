@@ -1,6 +1,6 @@
-const user = require('./usertools.js');
-const database = require('./database.js');
-const { uniqueId } = require('./auth.js');
+const user = require('./usertools');
+const {postModel, userModel} = require('./database');
+const {uniqueId} = require('./auth');
 
 class Post {
     constructor() {
@@ -22,7 +22,7 @@ class Post {
     }
 
     save() {
-        const postFile = new database.postSchema({
+        const postFile = new postModel({
             postid: this.postid,
             title: this.title,
             author: this.author.userid,
@@ -34,16 +34,14 @@ class Post {
     }
 }
 
-function updatePost({ apikey, postid, title, body }) {
-    return new Promise(async (resolve, reject) => {
-        const post = await getPost({ postid: postid })
-            .then(postData => postData);
+function updatePost({apikey, postid, title, body}) {
+    return new Promise(async resolve => {
+        const post = await getPost({postid: postid});
+        const postingUser = user.loginUser({apikey: apikey});
 
-        const postingUser = user.loginUser({ apikey: apikey })
-            .then(userData => userData);
-
-        if(post.author.apikey === postingUser.apikey || postingUser.canAdministrate()) {
-            await database.postSchema.findOneAndDelete({ 'postid': postid }, ()=>{});
+        if (post.author.apikey === postingUser.apikey || postingUser.canAdministrate()) {
+            await postModel.findOneAndDelete({'postid': postid}, () => {
+            });
 
             if (title) {
                 post.title = title;
@@ -63,16 +61,17 @@ function updatePost({ apikey, postid, title, body }) {
     });
 }
 
-function writePost({ apikey, title, body }) {
-    return new Promise(async (resolve, reject) => {
+function writePost({apikey, title, body}) {
+    return new Promise(async resolve => {
+
         // Create post
         const post = new Post();
 
-        const postingUser = await user.loginUser({ apikey: apikey }).then(userData => userData);
+        const postingUser = await user.loginUser({apikey: apikey}).then(userData => userData);
 
-        if(!postingUser.error) {
+        if (!postingUser.error) {
 
-            if(postingUser.canPost()) {
+            if (postingUser.canPost()) {
 
                 post.postid = uniqueId();
                 post.author = postingUser;
@@ -96,29 +95,26 @@ function writePost({ apikey, title, body }) {
     });
 }
 
-function getPost({ postid }) {
-    return new Promise(async (resolve, reject) => {
+function getPost({postid}) {
+    return new Promise(async resolve => {
         const post = new Post();
 
         let postSearch = null;
 
-        await database.postSchema.findOne({'postid': postid}, (error, pst) => {
-            postSearch = pst;
-        });
+        await postModel.findOne({'postid': postid}, (error, pst) => postSearch = pst);
 
-        if(postSearch) {
+        if (postSearch) {
             post.postid = postSearch.postid;
             post.title = postSearch.title;
-            post.author = user.getUser({ userid: postSearch.author });
+            post.author = user.getUser({userid: postSearch.author});
             post.timestamp = postSearch.timestamp;
             post.body = postSearch.body;
-
-            resolve(post);
         } else {
             post.postError('Could not find post!');
-            resolve(post);
         }
+
+        resolve(post);
     });
 }
 
-module.exports = { Post, writePost, getPost, updatePost };
+module.exports = {Post, writePost, getPost, updatePost};

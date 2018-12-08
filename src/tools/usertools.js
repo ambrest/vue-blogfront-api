@@ -1,6 +1,5 @@
 const database = require('./database.js');
-const { regexValidate } = require('./regex-validation.js');
-const { uniqueId, generateUUID } = require('./auth.js');
+const {uniqueId, generateUUID} = require('./auth.js');
 const bcrypt = require('bcrypt');
 
 class User {
@@ -26,7 +25,7 @@ class User {
     }
 
     save() {
-        const userFile = new database.userSchema({
+        const userFile = new database.userModel({
             username: this.username,
             apikey: this.apikey,
             userid: this.userid,
@@ -48,60 +47,50 @@ class User {
     canPost() {
         return this.permissions.includes('post');
     }
+
     canAdministrate() {
         return this.permissions.includes('administrate');
     }
+
     canComment() {
         return this.permissions.includes('comment');
     }
 }
 
-function findUser({ username, userid, apikey }) {
-    return new Promise(async (resolve, reject) => {
+function findUser({username, userid, apikey}) {
+    return new Promise(async resolve => {
         let user = new User();
 
-        if(username) {
+        if (username) {
             // Sanitization Checks
-            if (regexValidate(username, '[^a-zA-Z\-_0-9]')) {
-                await database.userSchema.findOne({'username': username}, (error, usr) => {
-                    user = usr;
-                });
-                resolve(user);
-                return;
+            if (/[^a-zA-Z-_0-9]/.test(username)) {
+                await database.userModel.findOne({'username': username}, (error, usr) => user = usr);
+                return resolve(user);
             } else {
                 user.postError('Username is NOT sanitized!');
             }
-        } else if(apikey) {
-            await database.userSchema.findOne({'apikey': apikey}, (error, usr) => {
-                user = usr;
-            });
-            resolve(user);
-            return;
-        } else if(userid != null) {
-            await database.userSchema.findOne({'userid': userid}, (error, usr) => {
-                user = usr;
-            });
-            resolve(user);
-            return;
+        } else if (apikey) {
+            await database.userModel.findOne({'apikey': apikey}, (error, usr) => user = usr);
+            return resolve(user);
+        } else if (userid != null) {
+            await database.userModel.findOne({'userid': userid}, (error, usr) => user = usr);
+            return resolve(user);
         }
 
         resolve(null);
     });
 }
 
-function getUser({ username, userid, apikey }) {
-    return new Promise(async (resolve, reject) => {
+function getUser({username, userid, apikey}) {
+    return new Promise(async resolve => {
         const user = new User();
+        let userSearch = await findUser({username, userid, apikey});
 
-        let userSearch = await findUser({ username, userid, apikey })
-            .then(userData => userData);
+        if (userSearch) {
+            if (apikey) {
+                const callingUser = await loginUser({apikey: apikey});
 
-        if(userSearch) {
-            if(apikey) {
-                const callingUser = await loginUser({apikey: apikey})
-                    .then(userData => userData);
-
-                if(callingUser.canAdministrate()) {
+                if (callingUser.canAdministrate()) {
                     user.email = userSearch.email;
                     user.permissions = userSearch.permissions;
                     user.deactivated = userSearch.deactivated;
@@ -109,6 +98,7 @@ function getUser({ username, userid, apikey }) {
                     user.postError('Provided API key does NOT have administration permission!'); // Non-Fatal
                 }
             }
+
             user.username = userSearch.username;
             user.userid = userSearch.userid;
             user.fullname = userSearch.fullname;
@@ -122,13 +112,12 @@ function getUser({ username, userid, apikey }) {
 }
 
 function registerUser({username, password, fullname, email}) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
         const user = new User();
 
         // Sanitization checks
-        if (regexValidate(password, '[ \'"]')) {
-            const userSearch = await findUser({ username: username })
-                .then(userData => userData);
+        if (/[ '"]/.test(password)) {
+            const userSearch = await findUser({username: username});
 
             if (!userSearch) {
                 // Populate User values
@@ -158,16 +147,16 @@ function registerUser({username, password, fullname, email}) {
 }
 
 // Logs the user in
-function loginUser({ username, password, apikey }) {
-    return new Promise(async (resolve, reject) => {
+function loginUser({username, password, apikey}) {
+    return new Promise(async resolve => {
         const user = new User();
 
-        if(apikey || regexValidate(password, '[ \'"]')) {
-            const userSearch = await findUser({ username: username, apikey: apikey })
-                .then(userData => userData);
+        if (apikey || /[ '"]/.test(password)) {
+            const userSearch = await findUser({username: username, apikey: apikey});
 
             if (userSearch) {
                 if (!userSearch.deactivated) {
+
                     // Check password
                     if (userSearch.apikey !== apikey) {
                         if (!bcrypt.compareSync(password, userSearch.hash)) {
@@ -203,4 +192,4 @@ function loginUser({ username, password, apikey }) {
     });
 }
 
-module.exports = { User, registerUser, loginUser, getUser };
+module.exports = {User, registerUser, loginUser, getUser};

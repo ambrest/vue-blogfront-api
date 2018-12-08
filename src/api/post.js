@@ -25,38 +25,39 @@ const query = `
 
 const resolver = {
     Query: {
+
         // Get a fresh post object
-        post: (obj, args) => {
+        post(obj, args) {
             return post.writePost(args)
                 .then(postData => postData);
         },
 
         // Load one specific post
-        getPost: (obj, args) => {
+        getPost(obj, args) {
             return post.getPost(args)
                 .then(postData => postData);
         },
 
-        updatePost: (obj, args) => {
+        updatePost(obj, args) {
             return post.updatePost(args)
                 .then(postData => postData);
         },
 
         // Get all posts in date range
-        getPostRange: (obj, { timestart, timeend }) => {
+        getPostRange(obj, {timestart, timeend}) {
 
         },
 
         // Get a specific number of posts
-        getPostCount: (obj, { count }) => {
+        getPostCount(obj, {count}) {
 
         },
 
         // Return all posts
-        getAllPosts: () => {
+        getAllPosts() {
 
         }
     }
 };
 
-module.exports = { typeDef, query, resolver };
+module.exports = {typeDef, query, resolver};

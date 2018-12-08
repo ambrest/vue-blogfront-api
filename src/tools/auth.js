@@ -12,4 +12,4 @@ function generateUUID() {
     });
 }
 
-module.exports = { uniqueId, generateUUID };
+module.exports = {uniqueId, generateUUID};

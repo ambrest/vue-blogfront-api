@@ -7,11 +7,11 @@ const query = `
 
 const resolver = {
     Query: {
-        author: () => {
-            return "Ambrest Designs LLC";
+        author() {
+            return 'Ambrest Designs LLC';
         },
 
-        version: () => {
+        version() {
             return 1.0;
         }
     }
