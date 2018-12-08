@@ -1,16 +1,48 @@
 const express = require('express');
-const login = require('./login');
 
+const graphqlHTTP = require('express-graphql');
+const { makeExecutableSchema } = require('graphql-tools');
+
+// API Points
+const info = require('./info.js');
+const user = require('./user.js');
+const post = require('./post.js');
+
+// Create API router
 const api = express.Router();
 
-api.route('/')
-    .get((req, res) => {
-        res.json({
-            version: 'Ambrest Scalable Blog v1.0',
-            author: 'Ambrest Designs'
-        });
-    });
+// Base Query
+const query = `
+    type Query {
+        schema: [String],
+        
+        ${info.query},
+        ${user.query},
+        ${post.query}
+    }
+`;
 
-api.use('/login', login);
+const typeDefs = [query, info.typeDef, user.typeDef, post.typeDef];
 
+const baseResolver = {
+    Query: {
+        schema: () => {
+            return typeDefs;
+        }
+    }
+};
+
+// Get definitions from all other modules
+const schema = makeExecutableSchema({
+    typeDefs: typeDefs,
+    resolvers: [info.resolver, user.resolver, post.resolver, baseResolver]
+});
+
+// Start listening
+api.use('/', graphqlHTTP({
+    schema: schema,
+    graphiql: true
+}));
+
+// Export module
 module.exports = api;

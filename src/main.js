@@ -1,12 +1,11 @@
 const express = require('express');
-
 const api = require('./api/api');
 
+// Create app
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
+// Add API module
 app.use('/api', api);
 
+// Start
 app.listen(4000);
