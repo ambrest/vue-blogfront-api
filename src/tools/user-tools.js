@@ -1,12 +1,13 @@
-const database = require('./database.js');
-const {uniqueId, generateUUID} = require('./auth.js');
+const database = require('./database');
+const auth = require('./auth');
+const uuidv4 = require('uuid/v4');
 const bcrypt = require('bcrypt');
 
 class User {
     constructor() {
         this.username = null;
         this.apikey = null;
-        this.userid = null;
+        this.id = null;
         this.fullname = null;
         this.permissions = null;
         this.email = null;
@@ -28,7 +29,7 @@ class User {
         const userFile = new database.userModel({
             username: this.username,
             apikey: this.apikey,
-            userid: this.userid,
+            id: this.id,
             fullname: this.fullname,
             permissions: this.permissions,
             email: this.email,
@@ -57,13 +58,46 @@ class User {
     }
 }
 
-function findUser({username, userid, apikey}) {
+function updateUser({apikey, id, fullname, permissions, email, password}) {
+    return new Promise(async resolve => {
+        const user = user.getUser({id: id});
+        const updatingUser = user.loginUser({apikey: apikey});
+
+        if (user.apikey === updatingUser.apikey || updatingUser.canAdministrate()) {
+            await database.postModel.findOneAndDelete({'id': id}, () => {});
+
+            if (fullname) {
+                user.fullname = fullname;
+            }
+            if (permissions) {
+                user.permissions = permissions;
+            }
+            if (email) {
+                user.email = email;
+            }
+            if (password) {
+                if(!/[ '"]/.test(password)) {
+                    user.hash = bcrypt.hashSync(password, 10);
+                }
+            }
+
+            user.save();
+
+            resolve(user);
+        } else {
+            user.postError('User does not have sufficient rights or does not exist!');
+            resolve(user);
+        }
+    });
+}
+
+function findUser({username, id, apikey}) {
     return new Promise(async resolve => {
         let user = new User();
 
         if (username) {
             // Sanitization Checks
-            if (/[^a-zA-Z-_0-9]/.test(username)) {
+            if (!/[^a-zA-Z-_0-9]/.test(username)) {
                 await database.userModel.findOne({'username': username}, (error, usr) => user = usr);
                 return resolve(user);
             } else {
@@ -72,8 +106,8 @@ function findUser({username, userid, apikey}) {
         } else if (apikey) {
             await database.userModel.findOne({'apikey': apikey}, (error, usr) => user = usr);
             return resolve(user);
-        } else if (userid != null) {
-            await database.userModel.findOne({'userid': userid}, (error, usr) => user = usr);
+        } else if (id != null) {
+            await database.userModel.findOne({'id': id}, (error, usr) => user = usr);
             return resolve(user);
         }
 
@@ -81,16 +115,16 @@ function findUser({username, userid, apikey}) {
     });
 }
 
-function getUser({username, userid, apikey}) {
+function getUser({username, id, apikey}) {
     return new Promise(async resolve => {
         const user = new User();
-        let userSearch = await findUser({username, userid, apikey});
+        let userSearch = await findUser({username, id, apikey});
 
         if (userSearch) {
             if (apikey) {
                 const callingUser = await loginUser({apikey: apikey});
 
-                if (callingUser.canAdministrate()) {
+                if (apikey === callingUser.apikey || callingUser.canAdministrate()) {
                     user.email = userSearch.email;
                     user.permissions = userSearch.permissions;
                     user.deactivated = userSearch.deactivated;
@@ -100,7 +134,7 @@ function getUser({username, userid, apikey}) {
             }
 
             user.username = userSearch.username;
-            user.userid = userSearch.userid;
+            user.id = userSearch.id;
             user.fullname = userSearch.fullname;
 
             resolve(user);
@@ -116,7 +150,7 @@ function registerUser({username, password, fullname, email}) {
         const user = new User();
 
         // Sanitization checks
-        if (/[ '"]/.test(password)) {
+        if (!/[ '"]/.test(password)) {
             const userSearch = await findUser({username: username});
 
             if (!userSearch) {
@@ -127,8 +161,8 @@ function registerUser({username, password, fullname, email}) {
 
                 user.permissions = ['comment'];
 
-                user.userid = uniqueId();
-                user.apikey = generateUUID();
+                user.id = auth.uniqueId();
+                user.apikey = uuidv4();
 
                 user.hash = bcrypt.hashSync(password, 10);
 
@@ -151,7 +185,7 @@ function loginUser({username, password, apikey}) {
     return new Promise(async resolve => {
         const user = new User();
 
-        if (apikey || /[ '"]/.test(password)) {
+        if (apikey || !/[ '"]/.test(password)) {
             const userSearch = await findUser({username: username, apikey: apikey});
 
             if (userSearch) {
@@ -171,7 +205,7 @@ function loginUser({username, password, apikey}) {
                     user.fullname = userSearch.fullname;
                     user.email = userSearch.email;
 
-                    user.userid = userSearch.userid;
+                    user.id = userSearch.id;
                     user.apikey = userSearch.apikey;
 
                     user.permissions = userSearch.permissions;
@@ -192,4 +226,4 @@ function loginUser({username, password, apikey}) {
     });
 }
 
-module.exports = {User, registerUser, loginUser, getUser};
+module.exports = {User, registerUser, loginUser, getUser, updateUser};

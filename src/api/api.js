@@ -4,9 +4,9 @@ const graphqlHTTP = require('express-graphql');
 const {makeExecutableSchema} = require('graphql-tools');
 
 // API Points
-const info = require('./info.js');
-const user = require('./user.js');
-const post = require('./post.js');
+const info = require('./info');
+const user = require('./user');
+const post = require('./post');
 
 // Create API router
 const api = express.Router();

@@ -1,10 +1,10 @@
-const user = require('../tools/usertools.js');
+const user = require('../tools/user-tools');
 
 const typeDef = `
     type User {
         username: String,
         apikey: String,
-        userid: String,
+        id: String,
         fullname: String,
         permissions: [String],
         email: String,
@@ -18,7 +18,8 @@ const typeDef = `
 `;
 
 const query = `
-    user(username: String, userid: String, apikey: String): User,
+    user(username: String, id: String, apikey: String): User,
+    updateUser(apikey: String!, id: String!, permissions: [String], password: String, fullname: String, email: String): User,
     getAllUsers(apikey: String!): [User],
     register(username: String!, password: String!, fullname: String!, email: String!): User,
     login(username: String, password: String, apikey: String): User

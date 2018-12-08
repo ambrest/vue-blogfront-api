@@ -1,15 +1,17 @@
-const user = require('./usertools');
-const {postModel, userModel} = require('./database');
-const {uniqueId} = require('./auth');
+const user = require('./user-tools');
+const database = require('./database');
+const auth = require('./auth');
 
 class Post {
     constructor() {
-        this.postid = null;
-        this.title = null;
+        this.id = null;
         this.author = null;
         this.timestamp = null;
 
+        this.title = null;
         this.body = null;
+
+        this.comments = null;
 
         this.error = false;
         this.errorMessage = null;
@@ -22,10 +24,10 @@ class Post {
     }
 
     save() {
-        const postFile = new postModel({
-            postid: this.postid,
+        const postFile = new database.postModel({
+            id: this.id,
             title: this.title,
-            author: this.author.userid,
+            author: this.author.id,
             timestamp: this.timestamp,
             body: this.body
         });
@@ -34,14 +36,13 @@ class Post {
     }
 }
 
-function updatePost({apikey, postid, title, body}) {
+function updatePost({apikey, id, title, body}) {
     return new Promise(async resolve => {
-        const post = await getPost({postid: postid});
+        const post = await getPost({id: id});
         const postingUser = user.loginUser({apikey: apikey});
 
         if (post.author.apikey === postingUser.apikey || postingUser.canAdministrate()) {
-            await postModel.findOneAndDelete({'postid': postid}, () => {
-            });
+            await database.postModel.findOneAndDelete({'id': id}, () => {});
 
             if (title) {
                 post.title = title;
@@ -73,7 +74,7 @@ function writePost({apikey, title, body}) {
 
             if (postingUser.canPost()) {
 
-                post.postid = uniqueId();
+                post.id = auth.uniqueId();
                 post.author = postingUser;
                 post.timestamp = Date.now();
 
@@ -95,18 +96,18 @@ function writePost({apikey, title, body}) {
     });
 }
 
-function getPost({postid}) {
+function getPost({id}) {
     return new Promise(async resolve => {
         const post = new Post();
 
         let postSearch = null;
 
-        await postModel.findOne({'postid': postid}, (error, pst) => postSearch = pst);
+        await database.postModel.findOne({'id': id}, (error, pst) => postSearch = pst);
 
         if (postSearch) {
-            post.postid = postSearch.postid;
+            post.id = postSearch.id;
             post.title = postSearch.title;
-            post.author = user.getUser({userid: postSearch.author});
+            post.author = user.getUser({id: postSearch.author});
             post.timestamp = postSearch.timestamp;
             post.body = postSearch.body;
         } else {

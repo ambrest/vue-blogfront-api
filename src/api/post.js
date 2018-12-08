@@ -1,8 +1,8 @@
-const post = require('../tools/posttools.js');
+const post = require('../tools/post-tools');
 
 const typeDef = `
     type Post {
-        postid: String,
+        id: String,
         title: String,
         author: User,
         timestamp: Int,
@@ -16,8 +16,8 @@ const typeDef = `
 
 const query = `
     post(apikey: String!, title: String!, body: String!): Post,
-    updatePost(apikey: String!, postid: String!, title: String, body: String): Post,
-    getPost(postid: String!): Post,
+    updatePost(apikey: String!, id: String!, title: String, body: String): Post,
+    getPost(id: String!): Post,
     getPostRange(timestart: Int!, timeend: Int!): [Post],
     getPostCount(count: Int!): [Post],
     getAllPosts: [Post]

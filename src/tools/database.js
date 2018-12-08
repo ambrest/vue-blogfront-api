@@ -3,7 +3,7 @@ mongoose.connect('mongodb://localhost/blog', {useNewUrlParser: true});
 
 // Schema for a post
 const postModel = mongoose.model('Post', {
-    postid: String,
+    id: String,
     title: String,
     author: String,
     timestamp: Number,
@@ -14,7 +14,7 @@ const postModel = mongoose.model('Post', {
 const userModel = mongoose.model('User', {
     username: String,
     apikey: String,
-    userid: String,
+    id: String,
     fullname: String,
     permissions: [String],
     email: String,
