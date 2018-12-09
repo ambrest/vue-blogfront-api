@@ -73,21 +73,30 @@ function updateUser({apikey, id, fullname, permissions, email, password, deactiv
 
 function findUser({username, id, apikey}) {
     return new Promise(async (resolve, reject) => {
-        let user = new User();
-
         if (username) {
-            await database.userModel.findOne({username}, (error, usr) => user = usr);
+            await database.userModel.findOne({username}, (error, user) => {
+                if(error) {
+                    reject(error);
+                } else {
+                    resolve(user);
+                }
+            });
         } else if (apikey) {
-            await database.userModel.findOne({apikey}, (error, usr) => user = usr);
+            await database.userModel.findOne({apikey}, (error, user) => {
+                if(error) {
+                    reject(error);
+                } else {
+                    resolve(user);
+                }
+            });
         } else if (id) {
-            await database.userModel.findOne({id}, (error, usr) => user = usr);
-        }
-
-        // Was the user found?
-        if (!user || !user.id) {
-            reject(config.errors.user.notFound);
-        } else {
-            resolve(user);
+            await database.userModel.findOne({id}, (error, user) => {
+                if(error) {
+                    reject(error);
+                } else {
+                    resolve(user);
+                }
+            });
         }
     });
 }

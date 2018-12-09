@@ -62,20 +62,24 @@ function writePost({apikey, title, body}) {
 
         const postingUser = await user.findUser({apikey})
             .catch(reject);
-        
-        if (postingUser.permissions.includes('post')) {
-            post.id = auth.uniqueId();
-            post.author = postingUser;
-            post.timestamp = Date.now();
 
-            post.title = title;
-            post.body = body;
+        if(postingUser) {
+            if (postingUser.permissions.includes('post')) {
+                post.id = auth.uniqueId();
+                post.author = postingUser;
+                post.timestamp = Date.now();
 
-            post.save();
+                post.title = title;
+                post.body = body;
 
-            resolve(post);
+                post.save();
+
+                resolve(post);
+            } else {
+                reject(config.errors.user.sufficientRights);
+            }
         } else {
-            reject(config.errors.user.sufficientRights);
+            reject(config.errors.user.notFound);
         }
     });
 }
