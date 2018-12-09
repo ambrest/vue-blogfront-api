@@ -16,7 +16,7 @@ const typeDef = `
 
 const query = `
     user(username: String, id: String, apikey: String): User,
-    updateUser(apikey: String!, id: String!, permissions: [String], password: String, fullname: String, email: String): User,
+    updateUser(apikey: String!, id: String!, permissions: [String], password: String, fullname: String, email: String, deactivated: Boolean): User,
     getAllUsers(apikey: String!): [User],
     register(username: String!, password: String!, fullname: String!, email: String!): User,
     login(username: String, password: String, apikey: String): User
@@ -109,7 +109,7 @@ const resolver = {
                 });
         },
         updateUser(obj, args) {
-            if (args.apikey || args.id || args.fullname || args.email || args.password || args.permissions) {
+            if (args.apikey || args.id || args.fullname || args.email || args.password || args.permissions || args.deactivated) {
                 if (args.apikey && !config.regexTests.apikey.test(args.apikey)) {
                     throw config.errors.invalid.apikey;
                 }
