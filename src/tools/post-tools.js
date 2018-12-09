@@ -60,7 +60,7 @@ function writePost({apikey, title, body}) {
     return new Promise(async (resolve, reject) => {
         const post = new Post();
 
-        const postingUser = await user.loginUser({apikey})
+        const postingUser = await user.findUser({apikey})
             .catch(reject);
 
         if (postingUser.canPost()) {

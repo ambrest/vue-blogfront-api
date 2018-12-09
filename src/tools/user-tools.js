@@ -165,7 +165,7 @@ function loginUser({username, password, apikey}) {
     return new Promise(async (resolve, reject) => {
         const user = new User();
 
-        const userSearch = await findUser(apikey ? {apikey} : {username})
+        const userSearch = await findUser(apikey ? ({apikey}) : ({username}))
             .catch(reject);
 
         if (userSearch) {
@@ -220,4 +220,4 @@ function getAllUsers({apikey}) {
     });
 }
 
-module.exports = {User, registerUser, loginUser, getUser, updateUser, getAllUsers};
+module.exports = {User, registerUser, loginUser, getUser, updateUser, getAllUsers, findUser};
