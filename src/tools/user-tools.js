@@ -55,7 +55,7 @@ function updateUser({apikey, id, fullname, permissions, email, password, deactiv
             if (email) {
                 user.email = email;
             }
-            if (deactivated) {
+            if (typeof(deactivated) === 'boolean') {
                 user.deactivated = deactivated;
             }
             if (password) {
