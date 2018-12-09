@@ -57,7 +57,7 @@ function updateUser({apikey, id, fullname, permissions, email, password, deactiv
         const user = await findUser({id})
             .catch(reject);
 
-        const updatingUser = await loginUser({apikey})
+        const updatingUser = await findUser({apikey})
             .catch(reject);
 
         if (user.apikey === updatingUser.apikey || updatingUser.canAdministrate()) {
@@ -114,7 +114,7 @@ function getUser({username, id, apikey}) {
 
         if (user) {
             if (apikey) {
-                const callingUser = await loginUser({apikey})
+                const callingUser = await findUser({apikey})
                     .catch(reject);
 
                 if (!(apikey === callingUser.apikey || callingUser.canAdministrate()) || callingUser.deactivated) {
@@ -197,4 +197,27 @@ function loginUser({username, password, apikey}) {
     });
 }
 
-module.exports = {User, registerUser, loginUser, getUser, updateUser};
+function getAllUsers({apikey}) {
+    return new Promise(async (resolve, reject) => {
+        const user = await findUser({apikey})
+            .catch(reject);
+
+        if (user.canAdministrate()) {
+            database.userModel.find({}, (error, userDocs) => {
+                if (error) {
+                    return reject(error);
+                }
+
+                if (userDocs) {
+                    resolve(userDocs);
+                } else {
+                    reject(config.errors.post.notFound);
+                }
+            });
+        } else {
+            reject(config.errors.user.sufficientRights);
+        }
+    });
+}
+
+module.exports = {User, registerUser, loginUser, getUser, updateUser, getAllUsers};

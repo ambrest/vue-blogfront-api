@@ -8,7 +8,7 @@ const typeDef = `
         title: String,
         author: String,
         user: User,
-        timestamp: Int,
+        timestamp: Float,
         
         body: String
     }
@@ -18,7 +18,7 @@ const query = `
     post(apikey: String!, title: String!, body: String!): Post,
     updatePost(apikey: String!, id: String!, title: String, body: String): Post,
     getPost(id: String!): Post,
-    getPostRange(timestart: Int!, timeend: Int!): [Post],
+    getPostRange(timestart: Float!, timeend: Float!): [Post],
     getPostCount(count: Int!): [Post],
     getAllPosts: [Post]
 `;

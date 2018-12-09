@@ -48,8 +48,12 @@ const resolver = {
                     throw error;
                 });
         },
-        getAllUsers() {
-
+        getAllUsers(_, args) {
+            return user.getAllUsers(args)
+                .then(userData => userData)
+                .catch(error => {
+                    throw error;
+                });
         },
         register(obj, args) {
             if (args.username || args.password || args.fullname || args.email) {
