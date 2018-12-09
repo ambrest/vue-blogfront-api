@@ -1,6 +1,7 @@
 const user = require('./user-tools');
 const database = require('./database');
 const auth = require('./auth');
+const config = require('../config');
 
 class Post {
     constructor() {
@@ -12,16 +13,9 @@ class Post {
         this.body = null;
 
         this.comments = null;
-
-        this.error = false;
-        this.errorMessage = null;
     }
 
     // PRIVATE
-    postError(message) {
-        this.error = true;
-        this.errorMessage = message;
-    }
 
     save() {
         const postFile = new database.postModel({
@@ -37,13 +31,14 @@ class Post {
 }
 
 function updatePost({apikey, id, title, body}) {
-    return new Promise(async resolve => {
-        const post = await getPost({id: id});
-        const postingUser = user.loginUser({apikey: apikey});
+    return new Promise(async (resolve, reject) => {
+        const post = await getPost({id})
+            .catch(reject);
 
-        if (post.author.apikey === postingUser.apikey || postingUser.canAdministrate()) {
-            await database.postModel.findOneAndDelete({'id': id}, () => {});
+        const postingUser = await user.loginUser({apikey})
+            .catch(reject);
 
+        if (post.author === postingUser.id || postingUser.canAdministrate()) {
             if (title) {
                 post.title = title;
             }
@@ -56,66 +51,65 @@ function updatePost({apikey, id, title, body}) {
 
             resolve(post);
         } else {
-            post.postError('User does not have sufficient rights or does not exist!');
-            resolve(post);
+            reject(config.errors.user.sufficientRights);
         }
     });
 }
 
 function writePost({apikey, title, body}) {
-    return new Promise(async resolve => {
-
-        // Create post
+    return new Promise(async (resolve, reject) => {
         const post = new Post();
 
-        const postingUser = await user.loginUser({apikey: apikey}).then(userData => userData);
+        const postingUser = await user.loginUser({apikey})
+            .catch(reject);
 
-        if (!postingUser.error) {
+        if (postingUser.canPost()) {
+            post.id = auth.uniqueId();
+            post.author = postingUser;
+            post.timestamp = Date.now();
 
-            if (postingUser.canPost()) {
+            post.title = title;
+            post.body = body;
 
-                post.id = auth.uniqueId();
-                post.author = postingUser;
-                post.timestamp = Date.now();
+            post.save();
 
-                post.title = title;
-                post.body = body;
-
-                post.save();
-
-                resolve(post);
-
-            } else {
-                post.postError('User does not have sufficient rights to post! The permission <post> is required.');
-                resolve(post);
-            }
-        } else {
-            post.postError(postingUser.errorMessage);
             resolve(post);
+        } else {
+            reject(config.errors.user.sufficientRights);
         }
     });
 }
 
 function getPost({id}) {
-    return new Promise(async resolve => {
-        const post = new Post();
+    return new Promise(async (resolve, reject) => {
+        database.postModel.findOne({id}, (error, post) => {
+            if (error) {
+                return reject(error);
+            }
 
-        let postSearch = null;
-
-        await database.postModel.findOne({'id': id}, (error, pst) => postSearch = pst);
-
-        if (postSearch) {
-            post.id = postSearch.id;
-            post.title = postSearch.title;
-            post.author = user.getUser({id: postSearch.author});
-            post.timestamp = postSearch.timestamp;
-            post.body = postSearch.body;
-        } else {
-            post.postError('Could not find post!');
-        }
-
-        resolve(post);
+            if (post) {
+                resolve(post);
+            } else {
+                reject(config.errors.post.notFound);
+            }
+        });
     });
 }
 
-module.exports = {Post, writePost, getPost, updatePost};
+function getAllPosts() {
+    return new Promise(async (resolve, reject) => {
+        database.postModel.find({}, (error, postDocs) => {
+            if (error) {
+                return reject(error);
+            }
+
+            if (postDocs) {
+                resolve(postDocs);
+            } else {
+                reject(config.errors.post.notFound);
+            }
+        });
+    });
+}
+
+module.exports = {Post, writePost, getPost, updatePost, getAllPosts};

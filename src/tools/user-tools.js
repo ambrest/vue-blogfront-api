@@ -2,6 +2,7 @@ const database = require('./database');
 const auth = require('./auth');
 const uuidv4 = require('uuid/v4');
 const bcrypt = require('bcrypt');
+const config = require('../config');
 
 class User {
     constructor() {
@@ -14,16 +15,9 @@ class User {
         this.hash = null;
 
         this.deactivated = false;
-
-        this.error = false;
-        this.errorMessage = null;
     }
 
     // PRIVATE
-    postError(message) {
-        this.error = true;
-        this.errorMessage = message;
-    }
 
     save() {
         const userFile = new database.userModel({
@@ -58,14 +52,15 @@ class User {
     }
 }
 
-function updateUser({apikey, id, fullname, permissions, email, password}) {
-    return new Promise(async resolve => {
-        const user = user.getUser({id: id});
-        const updatingUser = user.loginUser({apikey: apikey});
+function updateUser({apikey, id, fullname, permissions, email, password, deactivated}) {
+    return new Promise(async (resolve, reject) => {
+        const user = await findUser({id})
+            .catch(reject);
+
+        const updatingUser = await loginUser({apikey})
+            .catch(reject);
 
         if (user.apikey === updatingUser.apikey || updatingUser.canAdministrate()) {
-            await database.postModel.findOneAndDelete({'id': id}, () => {});
-
             if (fullname) {
                 user.fullname = fullname;
             }
@@ -75,85 +70,78 @@ function updateUser({apikey, id, fullname, permissions, email, password}) {
             if (email) {
                 user.email = email;
             }
+            if (deactivated) {
+                user.deactivated = deactivated;
+            }
             if (password) {
-                if(!/[ '"]/.test(password)) {
-                    user.hash = bcrypt.hashSync(password, 10);
-                }
+                user.hash = bcrypt.hashSync(password, 10);
             }
 
             user.save();
 
             resolve(user);
         } else {
-            user.postError('User does not have sufficient rights or does not exist!');
-            resolve(user);
+            reject(config.errors.user.sufficientRights);
         }
     });
 }
 
 function findUser({username, id, apikey}) {
-    return new Promise(async resolve => {
+    return new Promise(async (resolve, reject) => {
         let user = new User();
 
         if (username) {
-            // Sanitization Checks
-            if (!/[^a-zA-Z-_0-9]/.test(username)) {
-                await database.userModel.findOne({'username': username}, (error, usr) => user = usr);
-                return resolve(user);
-            } else {
-                user.postError('Username is NOT sanitized!');
-            }
+            await database.userModel.findOne({username}, (error, usr) => user = usr);
         } else if (apikey) {
-            await database.userModel.findOne({'apikey': apikey}, (error, usr) => user = usr);
-            return resolve(user);
-        } else if (id != null) {
-            await database.userModel.findOne({'id': id}, (error, usr) => user = usr);
-            return resolve(user);
+            await database.userModel.findOne({apikey}, (error, usr) => user = usr);
+        } else if (id) {
+            await database.userModel.findOne({id}, (error, usr) => user = usr);
         }
 
-        resolve(null);
+        // Was the user found?
+        if (!user || !user.id) {
+            reject(config.errors.user.notFound);
+        } else {
+            resolve(user);
+        }
     });
 }
 
 function getUser({username, id, apikey}) {
-    return new Promise(async resolve => {
-        const user = new User();
-        let userSearch = await findUser({username, id, apikey});
+    return new Promise(async (resolve, reject) => {
+        let user = await findUser({username, id})
+            .catch(reject);
 
-        if (userSearch) {
+        if (user) {
             if (apikey) {
-                const callingUser = await loginUser({apikey: apikey});
+                const callingUser = await loginUser({apikey})
+                    .catch(reject);
 
-                if (apikey === callingUser.apikey || callingUser.canAdministrate()) {
-                    user.email = userSearch.email;
-                    user.permissions = userSearch.permissions;
-                    user.deactivated = userSearch.deactivated;
-                } else {
-                    user.postError('Provided API key does NOT have administration permission!'); // Non-Fatal
+                if (!(apikey === callingUser.apikey || callingUser.canAdministrate()) || callingUser.deactivated) {
+                    reject(config.errors.user.sufficientRights);
                 }
+            } else {
+                user.email = null;
+                user.apikey = null;
+                user.hash = null;
             }
-
-            user.username = userSearch.username;
-            user.id = userSearch.id;
-            user.fullname = userSearch.fullname;
 
             resolve(user);
         } else {
-            user.postError('Could not find user!');
-            resolve(user);
+            reject(config.errors.user.notFound);
         }
     });
 }
 
 function registerUser({username, password, fullname, email}) {
-    return new Promise(async resolve => {
+    return new Promise(async (resolve, reject) => {
         const user = new User();
 
-        // Sanitization checks
-        if (!/[ '"]/.test(password)) {
-            const userSearch = await findUser({username: username});
-
-            if (!userSearch) {
+        await findUser({username})
+            .then(() => {
+                reject(config.errors.user.alreadyExists);
+            })
+            .catch(() => {
                 // Populate User values
                 user.username = username;
                 user.fullname = fullname;
@@ -169,60 +157,43 @@ function registerUser({username, password, fullname, email}) {
                 user.save();
 
                 resolve(user);
-            } else {
-                user.postError('User already exists!');
-            }
-        } else {
-            user.postError('Username and password are NOT sanitized!');
-        }
-
-        resolve(user);
+            });
     });
 }
 
-// Logs the user in
 function loginUser({username, password, apikey}) {
-    return new Promise(async resolve => {
+    return new Promise(async (resolve, reject) => {
         const user = new User();
 
-        if (apikey || !/[ '"]/.test(password)) {
-            const userSearch = await findUser({username: username, apikey: apikey});
+        const userSearch = await findUser(apikey ? {apikey} : {username})
+            .catch(reject);
 
-            if (userSearch) {
-                if (!userSearch.deactivated) {
-
-                    // Check password
-                    if (userSearch.apikey !== apikey) {
-                        if (!bcrypt.compareSync(password, userSearch.hash)) {
-                            user.postError('Wrong password!');
-                            resolve(user);
-                            return;
-                        }
+        if (userSearch) {
+            if (!userSearch.deactivated) {
+                // Check password
+                if (userSearch.apikey !== apikey) {
+                    if (!bcrypt.compareSync(password, userSearch.hash)) {
+                        reject(config.errors.user.wrongPassword);
                     }
-
-                    // Populate User values
-                    user.username = userSearch.username;
-                    user.fullname = userSearch.fullname;
-                    user.email = userSearch.email;
-
-                    user.id = userSearch.id;
-                    user.apikey = userSearch.apikey;
-
-                    user.permissions = userSearch.permissions;
-
-                    resolve(user);
-                    return;
-                } else {
-                    user.postError('This user is deactivated!');
                 }
+
+                // Populate User values
+                user.username = userSearch.username;
+                user.fullname = userSearch.fullname;
+                user.email = userSearch.email;
+
+                user.id = userSearch.id;
+                user.apikey = userSearch.apikey;
+
+                user.permissions = userSearch.permissions;
+
+                resolve(user);
             } else {
-                user.postError('User not found!');
+                reject(config.errors.user.deactivated);
             }
         } else {
-            user.postError('Password not sanitized!');
+            reject(config.errors.user.notFound);
         }
-
-        resolve(user);
     });
 }
 
