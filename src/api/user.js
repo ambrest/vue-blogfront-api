@@ -9,7 +9,6 @@ const typeDef = `
         fullname: String,
         permissions: [String],
         email: String,
-        canPost: Boolean,
         
         deactivated: Boolean
     }

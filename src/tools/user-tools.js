@@ -78,7 +78,11 @@ function findUser({username, id, apikey}) {
                 if(error) {
                     reject(error);
                 } else {
-                    resolve(user);
+                    if(user) {
+                        resolve(user);
+                    } else {
+                        reject(config.errors.user.notFound);
+                    }
                 }
             });
         } else if (apikey) {
@@ -86,7 +90,11 @@ function findUser({username, id, apikey}) {
                 if(error) {
                     reject(error);
                 } else {
-                    resolve(user);
+                    if(user) {
+                        resolve(user);
+                    } else {
+                        reject(config.errors.user.notFound);
+                    }
                 }
             });
         } else if (id) {
@@ -94,7 +102,11 @@ function findUser({username, id, apikey}) {
                 if(error) {
                     reject(error);
                 } else {
-                    resolve(user);
+                    if(user) {
+                        resolve(user);
+                    } else {
+                        reject(config.errors.user.notFound);
+                    }
                 }
             });
         }
@@ -203,6 +215,9 @@ function getAllUsers({apikey}) {
                 }
 
                 if (userDocs) {
+                    userDocs.forEach((doc) => {
+                        doc.apikey = null;
+                    });
                     resolve(userDocs);
                 } else {
                     reject(config.errors.post.notFound);
