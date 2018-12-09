@@ -46,11 +46,15 @@ function updateUser({apikey, id, fullname, permissions, email, password, deactiv
             .catch(reject);
 
         if (user.apikey === updatingUser.apikey || updatingUser.permissions.includes('administrate')) {
+            if (permissions) {
+                if(updatingUser.permissions.includes('administrate')) {
+                    user.permissions = permissions;
+                } else {
+                    reject(config.errors.user.sufficientRights);
+                }
+            }
             if (fullname) {
                 user.fullname = fullname;
-            }
-            if (permissions) {
-                user.permissions = permissions;
             }
             if (email) {
                 user.email = email;
