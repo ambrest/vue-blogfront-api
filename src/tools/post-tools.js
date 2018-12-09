@@ -38,7 +38,7 @@ function updatePost({apikey, id, title, body}) {
         const postingUser = await user.loginUser({apikey})
             .catch(reject);
 
-        if (post.author === postingUser.id || postingUser.canAdministrate()) {
+        if (post.author === postingUser.id || postingUser.permissions.includes('administrate')) {
             if (title) {
                 post.title = title;
             }
@@ -62,8 +62,8 @@ function writePost({apikey, title, body}) {
 
         const postingUser = await user.findUser({apikey})
             .catch(reject);
-
-        if (postingUser.canPost()) {
+        
+        if (postingUser.permissions.includes('post')) {
             post.id = auth.uniqueId();
             post.author = postingUser;
             post.timestamp = Date.now();

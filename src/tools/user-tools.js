@@ -35,21 +35,6 @@ class User {
 
         userFile.save();
     }
-
-    // PUBLIC
-
-    // Returns true if user has sufficient privilege, false if not
-    canPost() {
-        return this.permissions.includes('post');
-    }
-
-    canAdministrate() {
-        return this.permissions.includes('administrate');
-    }
-
-    canComment() {
-        return this.permissions.includes('comment');
-    }
 }
 
 function updateUser({apikey, id, fullname, permissions, email, password, deactivated}) {
@@ -60,7 +45,7 @@ function updateUser({apikey, id, fullname, permissions, email, password, deactiv
         const updatingUser = await findUser({apikey})
             .catch(reject);
 
-        if (user.apikey === updatingUser.apikey || updatingUser.canAdministrate()) {
+        if (user.apikey === updatingUser.apikey || updatingUser.permissions.includes('administrate')) {
             if (fullname) {
                 user.fullname = fullname;
             }
@@ -117,7 +102,7 @@ function getUser({username, id, apikey}) {
                 const callingUser = await findUser({apikey})
                     .catch(reject);
 
-                if (!(apikey === callingUser.apikey || callingUser.canAdministrate()) || callingUser.deactivated) {
+                if (!(apikey === callingUser.apikey || callingUser.permissions.includes('administrate')) || callingUser.deactivated) {
                     reject(config.errors.user.sufficientRights);
                 }
             } else {
@@ -202,7 +187,7 @@ function getAllUsers({apikey}) {
         const user = await findUser({apikey})
             .catch(reject);
 
-        if (user.canAdministrate()) {
+        if (user.permissions.includes('administrate')) {
             database.userModel.find({}, (error, userDocs) => {
                 if (error) {
                     return reject(error);
