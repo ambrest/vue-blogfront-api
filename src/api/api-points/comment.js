@@ -1,7 +1,8 @@
-const user = require('../tools/user-tools');
-const config = require('../config');
-const comment = require('../tools/comment-tools');
+const user = require('../../tools/user-tools');
+const config = require('../../config');
+const comment = require('../../tools/comment-tools');
 
+// Definition of the comment class for GraphQL
 const typeDef = `
     type Comment {
         id: String,
@@ -12,26 +13,27 @@ const typeDef = `
     }
 `;
 
+// Definition of the comment functions for GraphQL
+/**
+ * comment: create a new comment and return it
+ * removeComment: delete an already existing comment
+ * @type {string}
+ */
 const query = `
     comment(apikey: String!, postid: String!, body: String!): Comment,
     removeComment(apikey: String!, postid: String!, id: String!): Comment
 `;
 
+// Resolver, this resolves GraphQL requests
 const resolver = {
     Query: {
         comment(_, args) {
-            if (args.apikey && args.postid && args.body) {
-                if (!config.regexTests.apikey.test(args.apikey)) {
-                    throw config.errors.invalid.apikey;
-                }
-
-                if (!config.regexTests.id.test(args.postid)) {
-                    throw config.errors.invalid.id;
-                }
-            } else {
-                throw config.errors.missing.all;
+            // Make sure all required arguments are present
+            if (!args.apikey || !args.postid || !args.body) {
+                throw config.errors.missing.some;
             }
 
+            // Perform action and return promise
             return comment.comment(args)
                 .then(commentData => commentData)
                 .catch(error => {
@@ -40,22 +42,12 @@ const resolver = {
         },
 
         removeComment(_, args) {
-            if (args.apikey && args.postid && args.id) {
-                if (!config.regexTests.apikey.test(args.apikey)) {
-                    throw config.errors.invalid.apikey;
-                }
-
-                if (!config.regexTests.id.test(args.postid)) {
-                    throw config.errors.invalid.id;
-                }
-
-                if (!config.regexTests.id.test(args.id)) {
-                    throw config.errors.invalid.id;
-                }
-            } else {
-                throw config.errors.missing.all;
+            // Make sure all required arguments are present
+            if (!args.apikey || !args.postid || !args.id) {
+                throw config.errors.missing.some;
             }
 
+            // Perform action and return promise
             return comment.removeComment(args)
                 .then(commentData => commentData)
                 .catch(error => {
@@ -64,6 +56,8 @@ const resolver = {
         }
     },
     Comment: {
+        // For simplification purposes, users are stored in comments as just their IDs.
+        // When a query for a comment user is made, this function is called to resolve it.
         user(obj) {
             return user.getUser({id: obj.author})
                 .then(userData => userData)

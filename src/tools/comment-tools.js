@@ -1,8 +1,9 @@
 const post = require('../tools/post-tools');
 const user = require('../tools/user-tools');
 const config = require('../config');
-const auth = require('../tools/auth');
+const auth = require('../auth/auth');
 
+// Class for constructing new comments
 class Comment {
     constructor(author, body) {
         this.author = author;
@@ -12,51 +13,81 @@ class Comment {
     }
 }
 
-function comment({apikey, postid, body}) {
-    return new Promise(async (resolve, reject) => {
-        const thisPost = await post.getPost({id: postid})
-            .catch(reject);
+module.exports = {
+    /**
+     * Post a new comment
+     * @param apikey - apikey of the posting user. Must have 'comment' permission
+     * @param postid - id of the post to add a comment to
+     * @param body - body of the comment
+     * @returns {Promise} - the comment
+     */
+    comment({apikey, postid, body}) {
+        // Post to add the comment to
+        let thisPost;
 
-        const commentingUser = await user.findUser({apikey})
-            .catch(reject);
+        // Resolve the post
+        return post.getPost({id: postid}).then(resolvedPost => {
+            thisPost = resolvedPost;
 
-        if (commentingUser.permissions.includes('comment')) {
-            const newComment = new Comment(commentingUser.id, body);
+            // Get the user that is commenting
+            return user.findUser({apikey});
+        }).then(commentingUser => {
 
-            thisPost.comments.push(newComment);
-            thisPost.save();
+            // Make sure that the user has sufficient privileges to create a comment
+            if (commentingUser.permissions.includes('comment')) {
+                const newComment = new Comment(commentingUser.id, body);
 
-            resolve(newComment);
-        } else {
-            reject(config.errors.user.sufficientRights);
-        }
-    });
-}
-
-function removeComment({apikey, postid, id}) {
-    return new Promise(async (resolve, reject) => {
-        const thisPost = await post.getPost({id: postid})
-            .catch(reject);
-
-        const commentingUser = await user.findUser({apikey})
-            .catch(reject);
-
-        const commentIndex = thisPost.comments.findIndex(com => com.id === id);
-
-        if (commentIndex !== -1) {
-            if (commentingUser.id === thisPost.comments[commentIndex].author || commentingUser.permissions.includes('administrate')) {
-                thisPost.comments.splice(commentIndex, 1);
-
+                // Add the new comment to the post and save the post
+                thisPost.comments.push(newComment);
                 thisPost.save();
 
-                resolve(commentIndex);
+                return newComment;
             } else {
-                reject(config.errors.user.sufficientRights);
+                throw config.errors.user.sufficientRights;
             }
-        } else {
-            reject(config.errors.comment.notFound);
-        }
-    });
-}
+        });
+    },
 
-module.exports = {Comment, comment, removeComment};
+    /**
+     * Removes a comment from a post
+     * @param apikey - API key of the user removing the comment. Must either be the original commenter or an admin.
+     * @param postid - ID of the post that the comment was written on
+     * @param id - the ID of the comment to delete
+     * @returns {Promise} - the comment
+     */
+    removeComment({apikey, postid, id}) {
+        // Post to remove comment from
+        let thisPost;
+
+        // Resolve the post
+        return post.getPost({id: postid}).then(resolvedUser => {
+            thisPost = resolvedUser;
+
+            // Get the user removing the comment
+            return user.findUser({apikey});
+        }).then(commentingUser => {
+
+            // Find the comment in the post
+            const commentIndex = thisPost.comments.findIndex(com => com.id === id);
+
+            // Make sure that the comment exists
+            if (commentIndex !== -1) {
+
+                // Make sure that the user removing the comment is either its author or an administrator
+                if (commentingUser.id === thisPost.comments[commentIndex].author || commentingUser.permissions.includes('administrate')) {
+
+                    // Remove the comment
+                    thisPost.comments.splice(commentIndex, 1);
+
+                    thisPost.save();
+
+                    return commentIndex;
+                } else {
+                    throw config.errors.user.sufficientRights;
+                }
+            } else {
+                throw config.errors.comment.notFound;
+            }
+        });
+    }
+};

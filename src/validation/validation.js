@@ -1,5 +1,9 @@
 const config = require('../config');
 
+// Middleware function for GraphQL to validate ALL incoming arguments
+// Simple regex tests are used for most, which can be changed in
+// config.js
+
 module.exports = async (resolve, root, args, context, info) => {
     if (args.username && !config.regexTests.username.test(args.username)) {
         throw config.errors.invalid.username;

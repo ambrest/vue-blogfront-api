@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/blog', {useNewUrlParser: true});
 
-// Schema for a post
+//  MongoDB model for posts
 const postModel = mongoose.model('Post', {
     id: String,
     title: String,
@@ -18,7 +18,7 @@ const postModel = mongoose.model('Post', {
     }]
 });
 
-// User Schema
+// MongoDB model for users
 const userModel = mongoose.model('User', {
     username: String,
     apikeys: [{

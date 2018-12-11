@@ -5,6 +5,11 @@ module.exports = {
         blogTitle: "Ambrest Blog"
     },
 
+    server: {
+        port: 4000,
+        startingMessage: "Server started on port 4000..."
+    },
+
     auth: {
         apikeyExpiry: (86400000 * 15), // 15 Days
         saltRounds: 10

@@ -1,8 +1,9 @@
-const database = require('./database');
-const auth = require('./auth');
+const database = require('../database/database');
+const auth = require('../auth/auth');
 const bcrypt = require('bcrypt');
 const config = require('../config');
 
+// Class for constructing user objects
 class User {
     constructor(username, fullname, email, permissions, password) {
         const key = new auth.ApiKey();
@@ -36,36 +37,65 @@ class User {
 }
 
 module.exports = {
+
+    /**
+     * Updates selected user with the given properties. Only changes what is given.
+     * @param apikey - API key of the user updating the selected user. Must either be the same user or an admin.
+     * @param id - ID of the user to update
+     * @param fullname - OPTIONAL new full name
+     * @param permissions - OPTIONAL new permissions. Must be an admin to change this.
+     * @param email - OPTIONAL new email
+     * @param password - OPTIONAL new password (will automatically be hashed)
+     * @param deactivated - OPTIONAL deactivate user
+     * @returns {Promise} - the updated user
+     */
     updateUser({apikey, id, fullname, permissions, email, password, deactivated}) {
+        // User to update
         let user;
 
+        // Resolve user
         return this.findUser({id}).then(resolvedUser => {
-
             user = resolvedUser;
 
+            // Resolve calling user
             return this.findUser({apikey})
         }).then(updatingUser => {
+
+            // Make sure that the calling user is either the user being updated or an admin
             if (user.id === updatingUser.id || updatingUser.permissions.includes('administrate')) {
+
+                // Check if permissions are being updated
                 if (permissions) {
+
+                    // Make sure the user is an admin if updating permissions
                     if (updatingUser.permissions.includes('administrate')) {
                         user.permissions = permissions;
                     } else {
                         throw config.errors.user.sufficientRights
                     }
                 }
+
+                // Change name
                 if (fullname) {
                     user.fullname = fullname;
                 }
+
+                // Change email
                 if (email) {
                     user.email = email;
                 }
+
+                // Change deactivated. Here, typeof must be used as deactivated is a boolean itself.
                 if (typeof (deactivated) === 'boolean') {
                     user.deactivated = deactivated;
                 }
+
+                // Change password
                 if (password) {
                     user.hash = bcrypt.hashSync(password, config.auth.saltRounds);
                 }
 
+                // Commit changes
                 user.save();
 
                 return user;
@@ -75,9 +105,20 @@ module.exports = {
         });
     },
 
+    /**
+     * INTERNAL ONLY! Finds a user from the database and returns ALL user properties.
+     * @param username - OPTIONAL gets user by their username
+     * @param id - OPTIONAL gets user by their id
+     * @param apikey - OPTIONAL gets user by their API key. If the API key is expired, USER NOT FOUND is thrown
+     * @returns {Promise} - user that is searched
+     */
     findUser({username, id, apikey}) {
         return new Promise(async (resolve, reject) => {
+
+            // Get user by username
             if (username) {
+
+                // Resolve user
                 await database.userModel.findOne({username}, (error, user) => {
                     if (error) {
                         return reject(error);
@@ -89,29 +130,35 @@ module.exports = {
                         }
                     }
                 });
-            } else if (apikey) {
-                await database.userModel.findOne(
-                    {
-                        apikeys: {
-                            $elemMatch: {
-                                key: apikey,
-                                expiry: {
-                                    $gte: Date.now()
-                                }
+            } else if (apikey) { // Get user by API key. If the API key is expired, USER NOT FOUND is thrown
+
+                // Query to find the user with. Separated due to complexity.
+                const queryOptions = {
+                    apikeys: {
+                        $elemMatch: {
+                            key: apikey, // Match key
+                            expiry: {
+                                $gte: Date.now() // Make sure that the API key is not expired
                             }
                         }
-                    }, (error, user) => {
-                        if (error) {
-                            return reject(error);
+                    }
+                };
+
+                // Resolve user
+                await database.userModel.findOne(queryOptions, (error, user) => {
+                    if (error) {
+                        return reject(error);
+                    } else {
+                        if (user) {
+                            return resolve(user);
                         } else {
-                            if (user) {
-                                return resolve(user);
-                            } else {
-                                return reject(config.errors.user.notFound);
-                            }
+                            return reject(config.errors.user.notFound);
                         }
-                    });
-            } else if (id) {
+                    }
+                });
+            } else if (id) { // Gets user by their ID
+
+                // Resolve user
                 await database.userModel.findOne({id}, (error, user) => {
                     if (error) {
                         return reject(error);
@@ -127,31 +174,64 @@ module.exports = {
         });
     },
 
+    /**
+     * Gets a user by their username or id. One is required.
+     * @param username - OPTIONAL username of the user to get
+     * @param id - OPTIONAL id of the user to get
+     * @param apikey - OPTIONAL API key of the calling user, used to get private information of the user if the calling user
+     *                  is the user requested or is an admin.
+     * @returns {Promise} - the requested user
+     */
     getUser({username, id, apikey}) {
+        // Resolve user being searched
         return this.findUser({username, id}).then(user => {
+
+            // Check API key if provided
             if (apikey) {
+
+                // Resolve calling user
                 this.findUser({apikey}).then(callingUser => {
+
+                    // Check permissions of calling user
                     if (!(callingUser.id === user.id || callingUser.permissions.includes('administrate')) || callingUser.deactivated) {
                         throw config.errors.user.sufficientRights;
                     }
                 });
             } else {
                 user.email = null;
-                user.apikey = null;
-                user.hash = null;
             }
+
+            // NEVER send the API key or Hash of a user
+            user.apikey = null;
+            user.hash = null;
 
             return user;
         })
     },
 
+    /**
+     * Register a new user on the server
+     * @param username - username of the new user
+     * @param password - new user's password
+     * @param fullname - new user's name
+     * @param email - new user's email address
+     * @returns {Promise} - the new user
+     */
     registerUser({username, password, fullname, email}) {
+
+        // Check to see if the user already exists and throw error if so
         return this.findUser({username})
             .then(() => {
                 throw config.errors.user.alreadyExists;
             })
+
+            // Register a new user if none is found
             .catch(error => {
+
+                // Make sure that we're not catching the error above
                 if (error !== config.errors.user.alreadyExists) {
+
+                    // Register a new user and return it
                     return new User(username, fullname, email, ['comment'], password);
                 } else {
                     throw error;
@@ -159,16 +239,31 @@ module.exports = {
             });
     },
 
+    /**
+     * Log in a user with either username/password or apikey. If username/password is used, a new API key is generated
+     * @param username - OPTIONAL username of the user to login
+     * @param password - OPTIONAL password of the user to login
+     * @param apikey - OPTIONAL API key of the user to login
+     * @returns {Promise} - the user
+     */
     loginUser({username, password, apikey}) {
+
+        // Resolve user by either username or API key
         return this.findUser(apikey ? ({apikey}) : ({username})).then(user => {
+
+            // Make sure user isn't deactivated
             if (!user.deactivated) {
-                // Check password
+
+                // If not using a valid API key, check password
                 if (!user.apikeys.find(key => (key.key === apikey && key.expiry > Date.now()))) {
+
+                    // Compare password hash
                     if (!bcrypt.compareSync(password, user.hash)) {
                         throw config.errors.user.wrongPassword;
                     }
                 }
 
+                // Generate a new API key if one wasn't given
                 if (!apikey) {
                     const newApikey = new auth.ApiKey();
 
@@ -180,17 +275,27 @@ module.exports = {
                     user.apikey = apikey;
                 }
 
-                return user
+                return user;
             } else {
                 throw config.errors.user.deactivated;
             }
         })
-    }
-    ,
+    },
 
+    /**
+     * Get all users that have registered. Must be an admin to do this.
+     * @param apikey - API key of the admin calling
+     * @returns {Promise} - an array of all users EXCEPT the calling user
+     */
     getAllUsers({apikey}) {
+
+        // Resolve calling user
         return this.findUser({apikey}).then(user => {
+
+            // Check user permissions. Must be admin
             if (user.permissions.includes('administrate')) {
+
+                // Resolve all users
                 database.userModel.find({}, (error, userDocs) => {
                     if (error) {
                         throw error;
@@ -198,7 +303,13 @@ module.exports = {
 
                     if (userDocs) {
                         userDocs.forEach((doc) => {
-                            doc.apikeys = null;
+
+                            // Remove apikeys from all users, and remove the calling user from the list
+                            if (doc.id === user.id) {
+                                userDocs.splice(userDocs.indexOf(doc), 1);
+                            } else {
+                                doc.apikeys = null;
+                            }
                         });
 
                         return userDocs;
@@ -212,8 +323,25 @@ module.exports = {
         });
     },
 
+    /**
+     * Set the API key of a user to expire immediately
+     * @param apikey - API key of the user to logout
+     * @returns {Promise} - boolean always true
+     */
     logout({apikey}) {
-        // TODO: Implement
+
+        // Resolve calling user
+        return this.findUser({apikey}).then(user => {
+
+            // Get their apikey
+            const key = user.apikeys.find(key => key.key === apikey);
+
+            // Expire immediately
+            key.expiry = Date.now();
+
+            user.save();
+
+            return true;
+        });
     }
-}
-;
+};

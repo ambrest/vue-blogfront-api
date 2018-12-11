@@ -3,18 +3,19 @@ const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const {makeExecutableSchema} = require('graphql-tools');
 const {applyMiddleware} = require('graphql-middleware');
-const validation = require('../tools/validation');
+const validation = require('../validation/validation');
 
 // API Points
-const info = require('./info');
-const user = require('./user');
-const post = require('./post');
-const comment = require('./comment');
+const info = require('./api-points/info');
+const user = require('./api-points/user');
+const post = require('./api-points/post');
+const comment = require('./api-points/comment');
 
-// Create API router
+// Create API router for express
 const api = express.Router();
 
-// Base Query
+// Base Query, creates one collective query for all of the API Points
+// The API Points are all separate modules located in /src/api/api-points
 const query = `
     type Query {
         schema: [String],
@@ -26,10 +27,11 @@ const query = `
     }
 `;
 
+// Get types defined types and resolvers from all API modules
 const typeDefs = [query, info.typeDef, user.typeDef, post.typeDef, comment.typeDef];
 const resolvers = [info.resolver, user.resolver, post.resolver, comment.resolver];
 
-// Get definitions from all other modules
+// Combine all API modules into one and apply validation middleware to validate incoming arguments
 const schema = applyMiddleware(makeExecutableSchema({typeDefs, resolvers}), validation);
 
 // Start listening
