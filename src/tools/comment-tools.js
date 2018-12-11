@@ -43,7 +43,7 @@ function removeComment({apikey, postid, id}) {
 
         const commentIndex = thisPost.comments.findIndex(com => com.id === id);
 
-        if(commentIndex !== -1) {
+        if (commentIndex !== -1) {
             if (commentingUser.id === thisPost.comments[commentIndex].author || commentingUser.permissions.includes('administrate')) {
                 thisPost.comments.splice(commentIndex, 1);
 

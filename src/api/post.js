@@ -30,18 +30,8 @@ const resolver = {
     Query: {
         // Get a fresh post object
         post(_, args) {
-            if (args.title || args.body || args.apikey) {
-                if (args.title && !config.regexTests.title.test(args.title)) {
-                    throw config.errors.invalid.title;
-                }
-
-                // TODO: Script injection?
-
-                if (args.apikey && !config.regexTests.apikey.test(args.apikey)) {
-                    throw config.errors.invalid.apikey;
-                }
-            } else {
-                throw config.errors.missing.all;
+            if (!args.title || !args.body || !args.apikey) {
+                throw config.errors.missing.some;
             }
 
             return post.writePost(args)
@@ -53,11 +43,7 @@ const resolver = {
 
         // Load one specific post
         getPost(_, args) {
-            if (args.id) {
-                if (args.id && !config.regexTests.id.test(args.id)) {
-                    throw config.errors.invalid.id;
-                }
-            } else {
+            if (!args.id) {
                 throw config.errors.missing.all;
             }
 
@@ -69,22 +55,8 @@ const resolver = {
         },
 
         updatePost(_, args) {
-            if (args.title || args.body || args.apikey || args.id) {
-                if (args.id && !config.regexTests.id.test(args.id)) {
-                    throw config.errors.invalid.id;
-                }
-
-                if (args.title && !config.regexTests.title.test(args.title)) {
-                    throw config.errors.invalid.title;
-                }
-
-                // TODO: Script injection?
-
-                if (args.apikey && !config.regexTests.apikey.test(args.apikey)) {
-                    throw config.errors.invalid.apikey;
-                }
-            } else {
-                throw config.errors.missing.all;
+            if (!args.apikey || !args.id) {
+                throw config.errors.missing.some;
             }
 
             return post.updatePost(args)
@@ -122,15 +94,7 @@ const resolver = {
         },
 
         removePost(_, args) {
-            if (args.id && args.apikey) {
-                if (args.title && !config.regexTests.id.test(args.id)) {
-                    throw config.errors.invalid.id;
-                }
-
-                if (args.apikey && !config.regexTests.apikey.test(args.apikey)) {
-                    throw config.errors.invalid.apikey;
-                }
-            } else {
+            if (!args.id && !args.apikey) {
                 throw config.errors.missing.all;
             }
 

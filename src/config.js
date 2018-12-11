@@ -37,7 +37,8 @@ module.exports = {
         },
 
         missing: {
-            all: "You must provide arguments."
+            all: "You must provide arguments.",
+            some: "You have not provided all required arguments"
         },
 
         user: {

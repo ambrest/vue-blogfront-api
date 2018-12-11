@@ -2,6 +2,8 @@ const express = require('express');
 
 const graphqlHTTP = require('express-graphql');
 const {makeExecutableSchema} = require('graphql-tools');
+const {applyMiddleware} = require('graphql-middleware');
+const validation = require('../tools/validation');
 
 // API Points
 const info = require('./info');
@@ -28,7 +30,7 @@ const typeDefs = [query, info.typeDef, user.typeDef, post.typeDef, comment.typeD
 const resolvers = [info.resolver, user.resolver, post.resolver, comment.resolver];
 
 // Get definitions from all other modules
-const schema = makeExecutableSchema({typeDefs, resolvers});
+const schema = applyMiddleware(makeExecutableSchema({typeDefs, resolvers}), validation);
 
 // Start listening
 api.use('/', graphqlHTTP({
