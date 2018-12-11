@@ -1,77 +1,60 @@
 const database = require('./database');
 const auth = require('./auth');
-const uuidv4 = require('uuid/v4');
 const bcrypt = require('bcrypt');
 const config = require('../config');
 
 class User {
-    constructor() {
-        this.username = null;
+    constructor(username, fullname, email, permissions) {
+        this.username = username;
         this.apikey = null;
+        this.apikeys = [];
         this.id = null;
-        this.fullname = null;
-        this.permissions = null;
-        this.email = null;
+        this.fullname = fullname;
+        this.permissions = permissions;
+        this.email = email;
         this.hash = null;
 
         this.deactivated = false;
-    }
-
-    // PRIVATE
-
-    save() {
-        const userFile = new database.userModel({
-            username: this.username,
-            apikey: this.apikey,
-            id: this.id,
-            fullname: this.fullname,
-            permissions: this.permissions,
-            email: this.email,
-
-            hash: this.hash,
-
-            deactivated: this.deactivated
-        });
-
-        userFile.save();
     }
 }
 
 function updateUser({apikey, id, fullname, permissions, email, password, deactivated}) {
     return new Promise(async (resolve, reject) => {
-        const user = await findUser({id})
+        findUser({id})
+            .then(user => {
+                findUser({apikey})
+                    .then(updatingUser => {
+                        if (user.id === updatingUser.id || updatingUser.permissions.includes('administrate')) {
+                            if (permissions) {
+                                if (updatingUser.permissions.includes('administrate')) {
+                                    user.permissions = permissions;
+                                } else {
+                                    return reject(config.errors.user.sufficientRights);
+                                }
+                            }
+                            if (fullname) {
+                                user.fullname = fullname;
+                            }
+                            if (email) {
+                                user.email = email;
+                            }
+                            if (typeof (deactivated) === 'boolean') {
+                                user.deactivated = deactivated;
+                            }
+                            if (password) {
+                                user.hash = bcrypt.hashSync(password, config.auth.saltRounds);
+                            }
+
+                            user.save();
+
+                            return resolve(user);
+                        } else {
+                            return reject(config.errors.user.sufficientRights);
+                        }
+                    })
+                    .catch(reject);
+            })
             .catch(reject);
-
-        const updatingUser = await findUser({apikey})
-            .catch(reject);
-
-        if (user.apikey === updatingUser.apikey || updatingUser.permissions.includes('administrate')) {
-            if (permissions) {
-                if(updatingUser.permissions.includes('administrate')) {
-                    user.permissions = permissions;
-                } else {
-                    reject(config.errors.user.sufficientRights);
-                }
-            }
-            if (fullname) {
-                user.fullname = fullname;
-            }
-            if (email) {
-                user.email = email;
-            }
-            if (typeof(deactivated) === 'boolean') {
-                user.deactivated = deactivated;
-            }
-            if (password) {
-                user.hash = bcrypt.hashSync(password, 10);
-            }
-
-            user.save();
-
-            resolve(user);
-        } else {
-            reject(config.errors.user.sufficientRights);
-        }
     });
 }
 
@@ -79,37 +62,47 @@ function findUser({username, id, apikey}) {
     return new Promise(async (resolve, reject) => {
         if (username) {
             await database.userModel.findOne({username}, (error, user) => {
-                if(error) {
-                    reject(error);
+                if (error) {
+                    return reject(error);
                 } else {
-                    if(user) {
-                        resolve(user);
+                    if (user) {
+                        return resolve(user);
                     } else {
-                        reject(config.errors.user.notFound);
+                        return reject(config.errors.user.notFound);
                     }
                 }
             });
         } else if (apikey) {
-            await database.userModel.findOne({apikey}, (error, user) => {
-                if(error) {
-                    reject(error);
-                } else {
-                    if(user) {
-                        resolve(user);
-                    } else {
-                        reject(config.errors.user.notFound);
+            await database.userModel.findOne(
+                {
+                    apikeys: {
+                        $elemMatch: {
+                            key: apikey,
+                            expiry: {
+                                $gte: Date.now()
+                            }
+                        }
                     }
-                }
-            });
+                }, (error, user) => {
+                    if (error) {
+                        return reject(error);
+                    } else {
+                        if (user) {
+                            return resolve(user);
+                        } else {
+                            return reject(config.errors.user.notFound);
+                        }
+                    }
+                });
         } else if (id) {
             await database.userModel.findOne({id}, (error, user) => {
-                if(error) {
-                    reject(error);
+                if (error) {
+                    return reject(error);
                 } else {
-                    if(user) {
-                        resolve(user);
+                    if (user) {
+                        return resolve(user);
                     } else {
-                        reject(config.errors.user.notFound);
+                        return reject(config.errors.user.notFound);
                     }
                 }
             });
@@ -119,118 +112,127 @@ function findUser({username, id, apikey}) {
 
 function getUser({username, id, apikey}) {
     return new Promise(async (resolve, reject) => {
-        let user = await findUser({username, id})
-            .catch(reject);
+        findUser({username, id})
+            .then(async user => {
+                if (apikey) {
+                    const callingUser = await findUser({apikey})
+                        .catch(reject);
 
-        if (user) {
-            if (apikey) {
-                const callingUser = await findUser({apikey})
-                    .catch(reject);
-
-                if (!(apikey === callingUser.apikey || callingUser.permissions.includes('administrate')) || callingUser.deactivated) {
-                    reject(config.errors.user.sufficientRights);
+                    if (!(callingUser.id === user.id || callingUser.permissions.includes('administrate')) || callingUser.deactivated) {
+                        return reject(config.errors.user.sufficientRights);
+                    }
+                } else {
+                    user.email = null;
+                    user.apikey = null;
+                    user.hash = null;
                 }
-            } else {
-                user.email = null;
-                user.apikey = null;
-                user.hash = null;
-            }
 
-            resolve(user);
-        } else {
-            reject(config.errors.user.notFound);
-        }
+                return resolve(user);
+            })
+            .catch(reject);
     });
 }
 
 function registerUser({username, password, fullname, email}) {
     return new Promise(async (resolve, reject) => {
-        const user = new User();
-
-        await findUser({username})
+        findUser({username})
             .then(() => {
-                reject(config.errors.user.alreadyExists);
+                return reject(config.errors.user.alreadyExists);
             })
             .catch(() => {
                 // Populate User values
-                user.username = username;
-                user.fullname = fullname;
-                user.email = email;
-
-                user.permissions = ['comment'];
+                const user = new User(username, fullname, email, ['comment']);
 
                 user.id = auth.uniqueId();
-                user.apikey = uuidv4();
 
-                user.hash = bcrypt.hashSync(password, 10);
+                const apikey = new auth.ApiKey();
 
-                user.save();
+                user.apikey = apikey.key;
+                user.apikeys.push(apikey);
 
-                resolve(user);
+                user.hash = bcrypt.hashSync(password, config.auth.saltRounds);
+
+                const userFile = new database.userModel({
+                    username: user.username,
+                    apikeys: user.apikeys,
+                    id: user.id,
+                    fullname: user.fullname,
+                    permissions: user.permissions,
+                    email: user.email,
+
+                    hash: user.hash,
+
+                    deactivated: user.deactivated
+                });
+
+                userFile.save();
+
+                return resolve(user);
             });
     });
 }
 
 function loginUser({username, password, apikey}) {
     return new Promise(async (resolve, reject) => {
-        const user = new User();
-
-        const userSearch = await findUser(apikey ? ({apikey}) : ({username}))
-            .catch(reject);
-
-        if (userSearch) {
-            if (!userSearch.deactivated) {
-                // Check password
-                if (userSearch.apikey !== apikey) {
-                    if (!bcrypt.compareSync(password, userSearch.hash)) {
-                        reject(config.errors.user.wrongPassword);
+        findUser(apikey ? ({apikey}) : ({username}))
+            .then(user => {
+                if (!user.deactivated) {
+                    // Check password
+                    if (!user.apikeys.find(key => (key.key === apikey && key.expiry > Date.now()))) {
+                        if (!bcrypt.compareSync(password, user.hash)) {
+                            return reject(config.errors.user.wrongPassword);
+                        }
                     }
+
+                    if(!apikey) {
+                        const newApikey = new auth.ApiKey();
+
+                        user.apikey = newApikey.key;
+                        user.apikeys.push(newApikey);
+
+                        user.save();
+                    } else {
+                        user.apikey = apikey;
+                    }
+
+                    return resolve(user);
+                } else {
+                    return reject(config.errors.user.deactivated);
                 }
-
-                // Populate User values
-                user.username = userSearch.username;
-                user.fullname = userSearch.fullname;
-                user.email = userSearch.email;
-
-                user.id = userSearch.id;
-                user.apikey = userSearch.apikey;
-
-                user.permissions = userSearch.permissions;
-
-                resolve(user);
-            } else {
-                reject(config.errors.user.deactivated);
-            }
-        } else {
-            reject(config.errors.user.notFound);
-        }
+            })
+            .catch(reject);
     });
 }
 
 function getAllUsers({apikey}) {
     return new Promise(async (resolve, reject) => {
-        const user = await findUser({apikey})
-            .catch(reject);
+        findUser({apikey})
+            .then(user => {
+                if (user.permissions.includes('administrate')) {
+                    database.userModel.find({}, (error, userDocs) => {
+                        if (error) {
+                            return reject(error);
+                        }
 
-        if (user.permissions.includes('administrate')) {
-            database.userModel.find({}, (error, userDocs) => {
-                if (error) {
-                    return reject(error);
-                }
-
-                if (userDocs) {
-                    userDocs.forEach((doc) => {
-                        doc.apikey = null;
+                        if (userDocs) {
+                            userDocs.forEach((doc) => {
+                                doc.apikeys = null;
+                            });
+                            resolve(userDocs);
+                        } else {
+                            reject(config.errors.post.notFound);
+                        }
                     });
-                    resolve(userDocs);
                 } else {
-                    reject(config.errors.post.notFound);
+                    reject(config.errors.user.sufficientRights);
                 }
-            });
-        } else {
-            reject(config.errors.user.sufficientRights);
-        }
+            })
+            .catch(reject);
     });
 }
 
-module.exports = {User, registerUser, loginUser, getUser, updateUser, getAllUsers, findUser};
+function logoutUser({apikey}) {
+    // TODO: Implement
+}
+
+module.exports = {User, registerUser, loginUser, getUser, updateUser, getAllUsers, findUser, logoutUser};

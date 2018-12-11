@@ -7,6 +7,7 @@ const {makeExecutableSchema} = require('graphql-tools');
 const info = require('./info');
 const user = require('./user');
 const post = require('./post');
+const comment = require('./comment');
 
 // Create API router
 const api = express.Router();
@@ -18,25 +19,16 @@ const query = `
         
         ${info.query},
         ${user.query},
-        ${post.query}
+        ${post.query},
+        ${comment.query}
     }
 `;
 
-const typeDefs = [query, info.typeDef, user.typeDef, post.typeDef];
-
-const baseResolver = {
-    Query: {
-        schema() {
-            return typeDefs;
-        }
-    }
-};
+const typeDefs = [query, info.typeDef, user.typeDef, post.typeDef, comment.typeDef];
+const resolvers = [info.resolver, user.resolver, post.resolver, comment.resolver];
 
 // Get definitions from all other modules
-const schema = makeExecutableSchema({
-    typeDefs: typeDefs,
-    resolvers: [info.resolver, user.resolver, post.resolver, baseResolver]
-});
+const schema = makeExecutableSchema({typeDefs, resolvers});
 
 // Start listening
 api.use('/', graphqlHTTP({

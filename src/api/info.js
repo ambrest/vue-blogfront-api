@@ -1,18 +1,25 @@
+const config = require('../config');
+
 const typeDef = ``;
 
 const query = `
     author: String,
     version: Int,
+    blogTitle: String
 `;
 
 const resolver = {
     Query: {
         author() {
-            return 'Ambrest Designs LLC';
+            return config.info.author;
         },
 
         version() {
-            return 1.0;
+            return config.info.version;
+        },
+
+        blogTitle() {
+            return config.info.blogTitle;
         }
     }
 };

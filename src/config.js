@@ -1,4 +1,15 @@
 module.exports = {
+    info: {
+        author: "Ambrest Designs LLC",
+        version: 1.0,
+        blogTitle: "Ambrest Blog"
+    },
+
+    auth: {
+        apikeyExpiry: (86400000 * 15), // 15 Days
+        saltRounds: 10
+    },
+
     regexTests: {
         username: /^[\w\d]{2,15}$/,
         password: /^(.){4,20}$/,
@@ -6,7 +17,7 @@ module.exports = {
         id: /^_[a-z\d]{9}$/,
         fullname: /^[a-zA-Z]{1,20} [a-zA-Z]{1,20}$/,
         email: /^[\w\d]{1,20}@[\w\d]{1,20}\.[\w]{2,10}$/,
-        title: /^[\w\d .,/+\-!?:;]{5,50}$/
+        title: /^[\w\d '".,/+\-!?:;]{5,200}$/
     },
 
     errors: {
@@ -39,6 +50,10 @@ module.exports = {
 
         post: {
             notFound: "Post was not found."
+        },
+
+        comment: {
+            notFound: "Comment was not found."
         }
     }
 };

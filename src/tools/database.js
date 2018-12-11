@@ -7,13 +7,24 @@ const postModel = mongoose.model('Post', {
     title: String,
     author: String,
     timestamp: Number,
-    body: String
+    body: String,
+
+    comments: [{
+        author: String,
+        id: String,
+        postid: String,
+        timestamp: Number,
+        body: String
+    }]
 });
 
 // User Schema
 const userModel = mongoose.model('User', {
     username: String,
-    apikey: String,
+    apikeys: [{
+        key: String,
+        expiry: Number
+    }],
     id: String,
     fullname: String,
     permissions: [String],

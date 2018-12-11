@@ -12,7 +12,7 @@ class Post {
         this.title = null;
         this.body = null;
 
-        this.comments = null;
+        this.comments = [];
     }
 
     // PRIVATE
@@ -63,7 +63,7 @@ function writePost({apikey, title, body}) {
         const postingUser = await user.findUser({apikey})
             .catch(reject);
 
-        if(postingUser) {
+        if (postingUser) {
             if (postingUser.permissions.includes('post')) {
                 post.id = auth.uniqueId();
                 post.author = postingUser;
@@ -116,4 +116,60 @@ function getAllPosts() {
     });
 }
 
-module.exports = {Post, writePost, getPost, updatePost, getAllPosts};
+function getPostRange({timestart, timeend}) {
+    return new Promise(async (resolve, reject) => {
+        database.postModel.find({timestamp: {$gte: timestart, $lte: timeend}}, (error, postDocs) => {
+            if (error) {
+                return reject(error);
+            }
+
+            if (postDocs) {
+                resolve(postDocs);
+            } else {
+                reject(config.errors.post.notFound);
+            }
+        });
+    });
+}
+
+function getPostCount({count}) {
+    return new Promise(async (resolve, reject) => {
+        database.postModel.find({})
+            .limit(count)
+            .exec((error, postDocs) => {
+                if (error) {
+                    return reject(error);
+                }
+
+                if (postDocs) {
+                    resolve(postDocs);
+                } else {
+                    reject(config.errors.post.notFound);
+                }
+            });
+    });
+}
+
+function removePost({apikey, id}) {
+    return new Promise(async (resolve, reject) => {
+        const removingPost = await getPost({id})
+            .catch(reject);
+
+        const removingUser = await user.findUser({apikey})
+            .catch(reject);
+
+        if (removingPost.author === removingUser.id || removingUser.permissions.includes('administrate')) {
+            database.postModel.findOneAndDelete({id}, (error) => {
+                if(error) {
+                    reject(error);
+                } else {
+                    resolve(removingPost);
+                }
+            });
+        } else {
+            reject(config.errors.user.sufficientRights);
+        }
+    });
+}
+
+module.exports = {Post, writePost, getPost, updatePost, getAllPosts, getPostRange, getPostCount, removePost};

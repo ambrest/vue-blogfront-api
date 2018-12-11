@@ -10,12 +10,15 @@ const typeDef = `
         user: User,
         timestamp: Float,
         
+        comments: [Comment],
+        
         body: String
     }
 `;
 
 const query = `
     post(apikey: String!, title: String!, body: String!): Post,
+    removePost(apikey: String!, id: String!): Post,
     updatePost(apikey: String!, id: String!, title: String, body: String): Post,
     getPost(id: String!): Post,
     getPostRange(timestart: Float!, timeend: Float!): [Post],
@@ -93,12 +96,20 @@ const resolver = {
 
         // Get all posts in date range
         getPostRange(_, args) {
-
+            return post.getPostRange(args)
+                .then(postData => postData)
+                .catch(error => {
+                    throw error;
+                });
         },
 
         // Get a specific number of posts
         getPostCount(_, args) {
-
+            return post.getPostCount(args)
+                .then(postData => postData)
+                .catch(error => {
+                    throw error;
+                });
         },
 
         // Return all posts
@@ -108,6 +119,26 @@ const resolver = {
                 .catch(error => {
                     throw error;
                 });
+        },
+
+        removePost(_, args) {
+            if (args.id && args.apikey) {
+                if (args.title && !config.regexTests.id.test(args.id)) {
+                    throw config.errors.invalid.id;
+                }
+
+                if (args.apikey && !config.regexTests.apikey.test(args.apikey)) {
+                    throw config.errors.invalid.apikey;
+                }
+            } else {
+                throw config.errors.missing.all;
+            }
+
+            return post.removePost(args)
+                .then(postData => postData)
+                .catch(error => {
+                    throw error;
+                })
         }
     },
     Post: {
