@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const url = process.argv.inclues('--docker') ? 'mongodb://mongo:27017/blog' : 'mongodb://localhost/blog';
+const url = process.argv.includes('--docker') ? 'mongodb://mongo:27017/blog' : 'mongodb://localhost/blog';
 
 mongoose.connect(url, {useNewUrlParser: true});
 
