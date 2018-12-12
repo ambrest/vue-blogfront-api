@@ -6,7 +6,8 @@ const config = require('./config');
 
 // Change server URL for docker
 if(process.argv.includes('--docker')) {
-    config.mongodb.url = 'mongodb://mongodb:27017/blog';
+    config.mongodb.url = 'mongodb://mongo:27017/blog';
+    console.log('Docker configuration loaded');
 }
 
 // Create app
