@@ -1,29 +1,29 @@
 {
-  "name": "scalable-blog-backend",
-  "version": "1.0.0",
-  "description": "Scalable blog backend",
-  "main": "main.js",
-  "scripts": {
-    "test": "nodemon ./src/app.js",
-    "launch": "node ./src/app.js",
-    "lint": "eslint ./src"
-  },
-  "author": "Ambrest Designs LLC",
-  "license": "MIT",
-  "dependencies": {
-    "bcrypt": "^3.0.2",
-    "compression": "^1.7.3",
-    "cors": "^2.8.5",
-    "express": "^4.16.4",
-    "express-graphql": "^0.7.1",
-    "graphql": "^14.0.2",
-    "graphql-middleware": "^2.0.2",
-    "graphql-tools": "^4.0.3",
-    "mongodb": "^3.1.10",
-    "mongoose": "^5.3.14",
-    "uuid": "^3.3.2"
-  },
-  "devDependencies": {
-    "eslint": "^5.10.0"
-  }
+    "name": "scalable-blog-backend",
+    "version": "1.0.0",
+    "description": "Scalable blog backend",
+    "main": "main.js",
+    "scripts": {
+        "test": "nodemon ./src/app.js",
+        "launch": "node ./src/app.js",
+        "lint": "eslint ./src"
+    },
+    "author": "Ambrest Designs LLC",
+    "license": "MIT",
+    "dependencies": {
+        "bcrypt": "^3.0.2",
+        "compression": "^1.7.3",
+        "cors": "^2.8.5",
+        "express": "^4.16.4",
+        "express-graphql": "^0.7.1",
+        "graphql": "^14.0.2",
+        "graphql-middleware": "^2.0.2",
+        "graphql-tools": "^4.0.3",
+        "mongodb": "^3.1.10",
+        "mongoose": "^5.3.14",
+        "uuid": "^3.3.2"
+    },
+    "devDependencies": {
+        "eslint": "^5.10.0"
+    }
 }

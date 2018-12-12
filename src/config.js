@@ -1,13 +1,13 @@
 module.exports = {
     info: {
-        author: "Ambrest Designs LLC",
+        author: 'Ambrest Designs LLC',
         version: 1.0,
-        blogTitle: "Ambrest Blog"
+        blogTitle: 'Ambrest Blog'
     },
 
     server: {
         port: 4000,
-        startingMessage: "Server started on port 4000..."
+        startingMessage: 'Server started on port 4000...'
     },
 
     auth: {
@@ -27,39 +27,39 @@ module.exports = {
 
     errors: {
         invalid: {
-            username: "Your username is invalid.",
-            id: "Your id is invalid.",
-            apikey: "Your apikey is invalid.",
-            password: "Your password is invalid.",
-            fullname: "Your name is invalid.",
-            email: "Your email address is invalid",
-            permission: "Your permissions are invalid",
+            username: 'Your username is invalid.',
+            id: 'Your id is invalid.',
+            apikey: 'Your apikey is invalid.',
+            password: 'Your password is invalid.',
+            fullname: 'Your name is invalid.',
+            email: 'Your email address is invalid',
+            permission: 'Your permissions are invalid',
 
-            title: "Your title is invalid.",
-            body: "Your body is invalid.",
+            title: 'Your title is invalid.',
+            body: 'Your body is invalid.',
 
-            tooManyArgs: "Too many arguments"
+            tooManyArgs: 'Too many arguments'
         },
 
         missing: {
-            all: "You must provide arguments.",
-            some: "You have not provided all required arguments"
+            all: 'You must provide arguments.',
+            some: 'You have not provided all required arguments'
         },
 
         user: {
-            sufficientRights: "User does not have sufficient rights to perform this action.",
-            notFound: "User was not found.",
-            alreadyExists: "User already exists.",
-            deactivated: "User is deactivated.",
-            wrongPassword: "Password is wrong."
+            sufficientRights: 'User does not have sufficient rights to perform this action.',
+            notFound: 'User was not found.',
+            alreadyExists: 'User already exists.',
+            deactivated: 'User is deactivated.',
+            wrongPassword: 'Password is wrong.'
         },
 
         post: {
-            notFound: "Post was not found."
+            notFound: 'Post was not found.'
         },
 
         comment: {
-            notFound: "Comment was not found."
+            notFound: 'Comment was not found.'
         }
     }
 };
