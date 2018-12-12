@@ -4,8 +4,16 @@ const cors = require('cors');
 const compression = require('compression');
 const config = require('./config');
 
+// Change server URL for docker
+if(process.argv.includes('--docker')) {
+    config.mongodb.url = 'mongodb://mongodb:27017/blog';
+}
+
 // Create app
 const app = express();
+
+// Disable powered-by-message
+app.disable('x-powered-by');
 
 // G-Zip compression
 app.use(compression());

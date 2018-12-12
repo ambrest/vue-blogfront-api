@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/blog', {useNewUrlParser: true});
+const config = require('../config');
+mongoose.connect(config.mongodb.url, {useNewUrlParser: true});
 
 //  MongoDB model for posts
 const postModel = mongoose.model('Post', {

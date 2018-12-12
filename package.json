@@ -6,6 +6,7 @@
     "scripts": {
         "test": "nodemon ./src/app.js",
         "launch": "node ./src/app.js",
+        "launch-docker": "node ./src/app.js --docker",
         "lint": "eslint ./src"
     },
     "author": "Ambrest Designs LLC",
