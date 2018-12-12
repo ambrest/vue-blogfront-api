@@ -13,6 +13,9 @@ app.use(compression());
 // Allow CORS
 app.use(cors());
 
+// Serve static content
+app.use(express.static('../dist'));
+
 // GraphQL API Module
 app.use('/api', api);
 
