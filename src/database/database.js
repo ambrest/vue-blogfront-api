@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
-const config = require('../config');
-mongoose.connect(config.mongodb.url, {useNewUrlParser: true});
+
+const url = process.argv.inclues('--docker') ? 'mongodb://mongo:27017/blog' : 'mongodb://localhost/blog';
+
+mongoose.connect(url, {useNewUrlParser: true});
 
 //  MongoDB model for posts
 const postModel = mongoose.model('Post', {

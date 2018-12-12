@@ -10,10 +10,6 @@ module.exports = {
         startingMessage: 'Server started on port 4000...'
     },
 
-    mongodb: {
-        url: 'mongodb://localhost/blog'
-    },
-
     auth: {
         apikeyExpiry: (86400000 * 15), // 15 Days
         saltRounds: 10

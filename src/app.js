@@ -4,12 +4,6 @@ const cors = require('cors');
 const compression = require('compression');
 const config = require('./config');
 
-// Change server URL for docker
-if(process.argv.includes('--docker')) {
-    config.mongodb.url = 'mongodb://mongo:27017/blog';
-    console.log('Docker configuration loaded');
-}
-
 // Create app
 const app = express();
 
