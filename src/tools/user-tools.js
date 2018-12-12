@@ -58,7 +58,7 @@ module.exports = {
             user = resolvedUser;
 
             // Resolve calling user
-            return this.findUser({apikey})
+            return this.findUser({apikey});
         }).then(updatingUser => {
 
             // Make sure that the calling user is either the user being updated or an admin
@@ -71,7 +71,7 @@ module.exports = {
                     if (updatingUser.permissions.includes('administrate')) {
                         user.permissions = permissions;
                     } else {
-                        throw config.errors.user.sufficientRights
+                        throw config.errors.user.sufficientRights;
                     }
                 }
 
@@ -206,7 +206,7 @@ module.exports = {
             user.hash = null;
 
             return user;
-        })
+        });
     },
 
     /**
@@ -279,7 +279,7 @@ module.exports = {
             } else {
                 throw config.errors.user.deactivated;
             }
-        })
+        });
     },
 
     /**
@@ -296,7 +296,7 @@ module.exports = {
             if (user.permissions.includes('administrate')) {
 
                 // Resolve all users
-                database.userModel.find({}, (error, userDocs) => {
+                return database.userModel.find({}, (error, userDocs) => {
                     if (error) {
                         throw error;
                     }

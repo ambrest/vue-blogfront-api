@@ -35,84 +35,67 @@ const query = `
 `;
 
 const resolver = {
+
     Query: {
         user(obj, args) {
+
             // Make sure all required arguments are present
             if (!args.username && !args.id && !args.apikey) {
                 throw config.errors.missing.all;
             }
 
             // Perform action and return promise
-            return user.getUser(args)
-                .then(userData => userData)
-                .catch(error => {
-                    throw error;
-                });
+            return user.getUser(args);
         },
 
         getAllUsers(_, args) {
+
             // Perform action and return promise
-            return user.getAllUsers(args)
-                .then(userData => userData)
-                .catch(error => {
-                    throw error;
-                });
+            return user.getAllUsers(args);
         },
 
         register(obj, args) {
+
             // Make sure all required arguments are present
             if (!args.username || !args.password || !args.fullname || !args.email) {
                 throw config.errors.missing.some;
             }
 
             // Perform action and return promise
-            return user.registerUser(args)
-                .then(userData => userData)
-                .catch(error => {
-                    throw error;
-                });
+            return user.registerUser(args);
         },
 
         login(obj, args) {
+
             // Make sure all required arguments are present
             if ((!args.username && !args.password) && !args.apikey) {
                 throw config.errors.missing.all;
             }
 
             // Perform action and return promise
-            return user.loginUser(args)
-                .then(userData => userData)
-                .catch(error => {
-                    throw error;
-                });
+            return user.loginUser(args);
         },
 
         updateUser(obj, args) {
+
             // Make sure all required arguments are present
             if (!args.apikey || !args.id) {
                 throw config.errors.missing.some;
             }
 
             // Perform action and return promise
-            return user.updateUser(args)
-                .then(userData => userData)
-                .catch(error => {
-                    throw error;
-                });
+            return user.updateUser(args);
         },
 
         logout(_, args) {
+
             // Make sure all required arguments are present
             if (!args.apikey) {
                 throw config.errors.missing.all;
             }
 
             // Perform action and return promise
-            return user.logout(args)
-                .then(data => data)
-                .catch(error => {
-                    throw error;
-                });
+            return user.logout(args);
         }
     }
 };

@@ -39,100 +39,79 @@ const query = `
 `;
 
 const resolver = {
+
     Query: {
         post(_, args) {
+
             // Make sure all required arguments are present
             if (!args.title || !args.body || !args.apikey) {
                 throw config.errors.missing.some;
             }
 
             // Perform action and return promise
-            return post.writePost(args)
-                .then(postData => postData)
-                .catch(error => {
-                    throw error;
-                });
+            return post.writePost(args);
         },
 
         getPost(_, args) {
+
             // Make sure all required arguments are present
             if (!args.id) {
                 throw config.errors.missing.all;
             }
 
             // Perform action and return promise
-            return post.getPost(args)
-                .then(postData => postData)
-                .catch(error => {
-                    throw error;
-                });
+            return post.getPost(args);
         },
 
         updatePost(_, args) {
+
             // Make sure all required arguments are present
             if (!args.apikey || !args.id) {
                 throw config.errors.missing.some;
             }
 
             // Perform action and return promise
-            return post.updatePost(args)
-                .then(postData => postData)
-                .catch(error => {
-                    throw error;
-                });
+            return post.updatePost(args);
         },
 
         getPostRange(_, args) {
+
             // Perform action and return promise
-            return post.getPostRange(args)
-                .then(postData => postData)
-                .catch(error => {
-                    throw error;
-                });
+            return post.getPostRange(args);
         },
 
         getPostCount(_, args) {
+
             // Perform action and return promise
-            return post.getPostCount(args)
-                .then(postData => postData)
-                .catch(error => {
-                    throw error;
-                });
+            return post.getPostCount(args);
         },
 
         getAllPosts() {
+
             // Perform action and return promise
-            return post.getAllPosts()
-                .then(postData => postData)
-                .catch(error => {
-                    throw error;
-                });
+            return post.getAllPosts();
         },
 
         removePost(_, args) {
+
             // Make sure all required arguments are present
             if (!args.id && !args.apikey) {
                 throw config.errors.missing.all;
             }
 
             // Perform action and return promise
-            return post.removePost(args)
-                .then(postData => postData)
-                .catch(error => {
-                    throw error;
-                })
+            return post.removePost(args);
         }
     },
+
     Post: {
+
         // For simplification purposes, users are stored in posts as just their IDs.
         // When a query for a comment user is made, this function is called to resolve it.
         user(obj) {
+
             // Perform action and return promise
-            return user.getUser({id: obj.author})
-                .then(userData => userData)
-                .catch(error => {
-                    throw error;
-                });
+            return user.getUser({id: obj.author});
         }
     }
 };

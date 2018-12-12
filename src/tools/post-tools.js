@@ -37,6 +37,7 @@ module.exports = {
      * @returns {Promise} - the updated post
      */
     updatePost({apikey, id, title, body}) {
+
         // Post to update
         let post;
 
@@ -79,6 +80,7 @@ module.exports = {
      * @returns {Promise} - the new post
      */
     writePost({apikey, title, body}) {
+
         // Resolve user
         return user.findUser({apikey}).then(postingUser => {
 
@@ -190,6 +192,7 @@ module.exports = {
      * @returns {Promise} - the removed post
      */
     removePost({apikey, id}) {
+
         // Post to remove
         let removingPost;
 
@@ -198,7 +201,7 @@ module.exports = {
             removingPost = post;
 
             // Resolve user removing post
-            return user.findUser({apikey})
+            return user.findUser({apikey});
         }).then(async removingUser => {
 
             // Check that user has sufficient rights to remove the post

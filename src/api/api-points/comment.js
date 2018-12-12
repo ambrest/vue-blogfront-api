@@ -26,36 +26,32 @@ const query = `
 
 // Resolver, this resolves GraphQL requests
 const resolver = {
+
     Query: {
         comment(_, args) {
+
             // Make sure all required arguments are present
             if (!args.apikey || !args.postid || !args.body) {
                 throw config.errors.missing.some;
             }
 
             // Perform action and return promise
-            return comment.comment(args)
-                .then(commentData => commentData)
-                .catch(error => {
-                    throw error;
-                });
+            return comment.comment(args);
         },
 
         removeComment(_, args) {
+
             // Make sure all required arguments are present
             if (!args.apikey || !args.postid || !args.id) {
                 throw config.errors.missing.some;
             }
 
             // Perform action and return promise
-            return comment.removeComment(args)
-                .then(commentData => commentData)
-                .catch(error => {
-                    throw error;
-                });
+            return comment.removeComment(args);
         }
     },
     Comment: {
+
         // For simplification purposes, users are stored in comments as just their IDs.
         // When a query for a comment user is made, this function is called to resolve it.
         user(obj) {
