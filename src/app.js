@@ -3,6 +3,7 @@ const api = require('./api/api');
 const cors = require('cors');
 const compression = require('compression');
 const config = require('./config');
+const history = require('connect-history-api-fallback');
 
 // Create app
 const app = express();
@@ -20,7 +21,13 @@ app.use(cors());
 app.use('/api', api);
 
 // Serve static
-app.use('*', express.static('../dist/index.html'));
+const staticFileMiddleware = express.static('../dist');
+app.use(staticFileMiddleware);
+app.use(history({
+    disableDotRule: true,
+    verbose: true
+}));
+app.use(staticFileMiddleware);
 
 // Start
 app.listen(config.server.port);
