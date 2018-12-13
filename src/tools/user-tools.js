@@ -296,27 +296,17 @@ module.exports = {
             if (user.permissions.includes('administrate')) {
 
                 // Resolve all users
-                return database.userModel.find({}, (error, userDocs) => {
-                    if (error) {
-                        throw error;
-                    }
-
+                return database.userModel.find({}).exec().then(userDocs => {
                     if (userDocs) {
-                        userDocs.forEach((doc) => {
-
-                            // Remove apikeys from all users, and remove the calling user from the list
-                            if (doc.id === user.id) {
-                                userDocs.splice(userDocs.indexOf(doc), 1);
-                            } else {
-                                doc.apikeys = null;
-                            }
+                        return userDocs.filter(doc => {
+                            delete doc.apikeys;
+                            return doc.id !== user.id;
                         });
-
-                        return userDocs;
                     } else {
                         throw config.errors.post.notFound;
                     }
                 });
+
             } else {
                 throw config.errors.user.sufficientRights;
             }

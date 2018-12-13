@@ -99,20 +99,14 @@ module.exports = {
      * @returns {Promise} - the post
      */
     getPost({id}) {
-        return new Promise(async (resolve, reject) => {
 
-            // Resolve post in the database
-            database.postModel.findOne({id}, (error, post) => {
-                if (error) {
-                    return reject(error);
-                }
-
-                if (post) {
-                    return resolve(post);
-                } else {
-                    return reject(config.errors.post.notFound);
-                }
-            });
+        // Resolve post in the database
+        return database.postModel.findOne({id}).then(post => {
+            if (post) {
+                return post;
+            } else {
+                return config.errors.post.notFound;
+            }
         });
     },
 
@@ -121,20 +115,14 @@ module.exports = {
      * @returns {Promise} - an array of posts
      */
     getAllPosts() {
-        return new Promise(async (resolve, reject) => {
 
-            // Resolve all posts on the server
-            database.postModel.find({}, (error, postDocs) => {
-                if (error) {
-                    return reject(error);
-                }
-
-                if (postDocs) {
-                    return resolve(postDocs);
-                } else {
-                    return reject(config.errors.post.notFound);
-                }
-            });
+        // Resolve all posts on the server
+        return database.postModel.find({}).exec().then(postDocs => {
+            if (postDocs) {
+                return postDocs;
+            } else {
+                return config.errors.post.notFound;
+            }
         });
     },
 
@@ -145,20 +133,14 @@ module.exports = {
      * @returns {Promise} - an array of all posts in the given range
      */
     getPostRange({timestart, timeend}) {
-        return new Promise(async (resolve, reject) => {
 
-            // Resolve all posts in given timerange from the database
-            database.postModel.find({timestamp: {$gte: timestart, $lte: timeend}}, (error, postDocs) => {
-                if (error) {
-                    return reject(error);
-                }
-
-                if (postDocs) {
-                    return resolve(postDocs);
-                } else {
-                    return reject(config.errors.post.notFound);
-                }
-            });
+        // Resolve all posts in given timerange from the database
+        return database.postModel.find({timestamp: {$gte: timestart, $lte: timeend}}).exec().then(postDocs => {
+            if (postDocs) {
+                return postDocs;
+            } else {
+                throw config.errors.post.notFound;
+            }
         });
     },
 
@@ -168,20 +150,14 @@ module.exports = {
      * @returns {Promise} - an array of posts
      */
     getPostCount({count}) {
-        return new Promise(async (resolve, reject) => {
 
-            // Resolve Posts
-            database.postModel.find({}).limit(count).exec((error, postDocs) => {
-                if (error) {
-                    return reject(error);
-                }
-
-                if (postDocs) {
-                    return resolve(postDocs);
-                } else {
-                    return reject(config.errors.post.notFound);
-                }
-            });
+        // Resolve post count
+        return database.postModel.find({}).limit(count).exec().then(amount => {
+            if (amount) {
+                return amount;
+            } else {
+                throw config.errors.post.notFound;
+            }
         });
     },
 
@@ -202,19 +178,13 @@ module.exports = {
 
             // Resolve user removing post
             return user.findUser({apikey});
-        }).then(async removingUser => {
+        }).then(removingUser => {
 
             // Check that user has sufficient rights to remove the post
             if (removingPost.author === removingUser.id || removingUser.permissions.includes('administrate')) {
 
                 // Delete the post from the database
-                return await database.postModel.findOneAndDelete({id}, (error) => {
-                    if (error) {
-                        throw error;
-                    } else {
-                        return removingPost;
-                    }
-                });
+                return database.postModel.findOneAndDelete({id}).exec();
             } else {
                 throw config.errors.user.sufficientRights;
             }
