@@ -16,11 +16,11 @@ app.use(compression());
 // Allow CORS
 app.use(cors());
 
-// Serve static content
-app.use(express.static('../dist'));
-
 // GraphQL API Module
 app.use('/api', api);
+
+// Serve static
+app.use('*', express.static('../dist/index.html'));
 
 // Start
 app.listen(config.server.port);
