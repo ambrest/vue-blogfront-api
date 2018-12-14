@@ -1,6 +1,6 @@
 const post = require('../../tools/post-tools');
 const user = require('../../tools/user-tools');
-const config = require('../../config');
+const config = require('../../../config/config');
 
 // Definition of the post class for GraphQL
 const typeDef = `

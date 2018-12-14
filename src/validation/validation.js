@@ -1,4 +1,4 @@
-const config = require('../config');
+const config = require('../../config/config');
 
 // Middleware function for GraphQL to validate ALL incoming arguments
 // Simple regex tests are used for most, which can be changed in

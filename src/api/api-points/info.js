@@ -1,4 +1,4 @@
-const config = require('../../config');
+const config = require('../../../config/config');
 
 // No types need to be defined
 const typeDef = ``;

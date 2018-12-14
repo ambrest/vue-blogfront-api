@@ -1,7 +1,7 @@
 const user = require('./user-tools');
 const database = require('../database/database');
 const auth = require('../auth/auth');
-const config = require('../config');
+const config = require('../../config/config');
 
 // Class used to create new posts
 class Post {

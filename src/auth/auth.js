@@ -1,5 +1,5 @@
 const uuidv4 = require('uuid/v4');
-const config = require('../config');
+const config = require('../../config/config');
 
 /**
  * Class for storing API-Keys

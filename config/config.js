@@ -1,3 +1,5 @@
+
+// TODO: We should use JSON like vue-blogfront etc. to keep everything in harmony lolz :)
 module.exports = {
     info: {
         author: 'Ambrest Designs LLC',

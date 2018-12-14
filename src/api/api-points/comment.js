@@ -1,5 +1,5 @@
 const user = require('../../tools/user-tools');
-const config = require('../../config');
+const config = require('../../../config/config');
 const comment = require('../../tools/comment-tools');
 
 // Definition of the comment class for GraphQL

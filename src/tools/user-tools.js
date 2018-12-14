@@ -1,7 +1,7 @@
 const database = require('../database/database');
 const auth = require('../auth/auth');
 const bcrypt = require('bcrypt');
-const config = require('../config');
+const config = require('../../config/config');
 
 // Class for constructing user objects
 class User {
