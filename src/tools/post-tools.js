@@ -121,7 +121,7 @@ module.exports = {
             if (postDocs) {
                 return postDocs;
             } else {
-                return config.errors.post.notFound;
+                throw config.errors.post.notFound;
             }
         });
     },
