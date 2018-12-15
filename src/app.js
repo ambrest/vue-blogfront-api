@@ -21,13 +21,15 @@ app.use(cors());
 app.use('/api', api);
 
 // Serve static
-const staticFileMiddleware = express.static('../dist');
-app.use(staticFileMiddleware);
-app.use(history({
-    disableDotRule: true,
-    verbose: true
-}));
-app.use(staticFileMiddleware);
+if (process.argv.includes('--docker')) {
+    const staticFileMiddleware = express.static('../dist');
+    app.use(staticFileMiddleware);
+    app.use(history({
+        disableDotRule: true,
+        verbose: true
+    }));
+    app.use(staticFileMiddleware);
+}
 
 // Start
 app.listen(config.server.port);

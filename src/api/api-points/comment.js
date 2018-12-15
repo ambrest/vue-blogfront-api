@@ -17,11 +17,13 @@ const typeDef = `
 /**
  * comment: create a new comment and return it
  * removeComment: delete an already existing comment
+ * updateComment: edit an existing comment
  * @type {string}
  */
 const query = `
     comment(apikey: String!, postid: String!, body: String!): Comment,
-    removeComment(apikey: String!, postid: String!, id: String!): Comment
+    removeComment(apikey: String!, postid: String!, id: String!): Comment,
+    updateComment(apikey: String!, postid: String!, id: String!, body: String!): Comment
 `;
 
 // Resolver, this resolves GraphQL requests
@@ -48,6 +50,17 @@ const resolver = {
 
             // Perform action and return promise
             return comment.removeComment(args);
+        },
+
+        updateComment(_, args) {
+
+            // Make sure all required arguments are present
+            if (!args.apikey || !args.postid || !args.id || !args.body) {
+                throw config.errors.missing.some;
+            }
+
+            // Perform action and return promise
+            return comment.updateComment(args);
         }
     },
     Comment: {

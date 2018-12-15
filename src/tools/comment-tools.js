@@ -89,5 +89,49 @@ module.exports = {
                 throw config.errors.comment.notFound;
             }
         });
+    },
+
+    /**
+     * Updates a given comment
+     * @param apikey - API key of the user updating the post. Must either be the author or an admin.
+     * @param postid - ID of the post which the comment is in
+     * @param id - Comment ID
+     * @param body - new body for the comment
+     * @returns {Promise} - the updated comment
+     */
+    updateComment({apikey, id, title, body}) {
+
+        // Post to update
+        let thisPost;
+
+        // Resolve post
+        return this.getPost({id}).then(resolvedPost => {
+            thisPost = resolvedPost;
+
+            // Resolve the author
+            return user.findUser({apikey});
+        }).then(commentingUser => {
+
+            // Find the comment in the post
+            const comment = thisPost.comments.find(com => com.id === id);
+
+            // Make sure that the comment exists
+            if (comment) {
+
+                // Make sure that the user removing the comment is either its author or an administrator
+                if (commentingUser.id === comment.author || commentingUser.permissions.includes('administrate')) {
+
+                    comment.body = body;
+
+                    thisPost.save();
+
+                    return comment;
+                } else {
+                    throw config.errors.user.sufficientRights;
+                }
+            } else {
+                throw config.errors.user.sufficientRights;
+            }
+        });
     }
 };
