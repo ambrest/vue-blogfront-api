@@ -82,7 +82,7 @@ module.exports = {
     writePost({apikey, title, body}) {
 
         // Resolve user
-        return user.findUser({apikey}).exec().then(postingUser => {
+        return user.findUser({apikey}).then(postingUser => {
 
             // Make sure that user has sufficient permissions to post
             if (postingUser.permissions.includes('post')) {
