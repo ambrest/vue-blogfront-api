@@ -106,7 +106,7 @@ module.exports = {
         let thisPost;
 
         // Resolve post
-        return post.getPost({postid}).then(resolvedPost => {
+        return post.getPost({id: postid}).then(resolvedPost => {
             thisPost = resolvedPost;
 
             // Resolve the author

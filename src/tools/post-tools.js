@@ -82,7 +82,7 @@ module.exports = {
     writePost({apikey, title, body}) {
 
         // Resolve user
-        return user.findUser({apikey}).then(postingUser => {
+        return user.findUser({apikey}).exec().then(postingUser => {
 
             // Make sure that user has sufficient permissions to post
             if (postingUser.permissions.includes('post')) {
@@ -99,13 +99,12 @@ module.exports = {
      * @returns {Promise} - the post
      */
     getPost({id}) {
-
         // Resolve post in the database
-        return database.postModel.findOne({id}).then(post => {
+        return database.postModel.findOne({id}).exec().then(post => {
             if (post) {
                 return post;
             } else {
-                return config.errors.post.notFound;
+                throw config.errors.post.notFound;
             }
         });
     },
