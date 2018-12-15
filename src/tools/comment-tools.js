@@ -69,19 +69,20 @@ module.exports = {
 
             // Find the comment in the post
             const commentIndex = thisPost.comments.findIndex(com => com.id === id);
+            const comment = thisPost.comments[commentIndex];
 
             // Make sure that the comment exists
             if (commentIndex !== -1) {
 
                 // Make sure that the user removing the comment is either its author or an administrator
-                if (commentingUser.id === thisPost.comments[commentIndex].author || commentingUser.permissions.includes('administrate')) {
+                if (commentingUser.id === comment.author || commentingUser.permissions.includes('administrate')) {
 
                     // Remove the comment
                     thisPost.comments.splice(commentIndex, 1);
 
                     thisPost.save();
 
-                    return commentIndex;
+                    return comment;
                 } else {
                     throw config.errors.user.sufficientRights;
                 }
