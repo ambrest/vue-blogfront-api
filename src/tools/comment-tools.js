@@ -100,13 +100,13 @@ module.exports = {
      * @param body - new body for the comment
      * @returns {Promise} - the updated comment
      */
-    updateComment({apikey, id, title, body}) {
+    updateComment({apikey, postid, id, body}) {
 
         // Post to update
         let thisPost;
 
         // Resolve post
-        return this.getPost({id}).then(resolvedPost => {
+        return post.getPost({postid}).then(resolvedPost => {
             thisPost = resolvedPost;
 
             // Resolve the author
