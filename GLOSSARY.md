@@ -23,12 +23,12 @@ This document will serve to be an overview of the code found in this repository,
 
 ```text
 app.js - Contains the code to start and run the server.
-config.js - Contains all of the settings for the server.
+config.json - Contains all of the settings for the server.
 
 /src
     /api
         api.js - Integrates all of the api points into one, configures GraphQL
-    
+
         /api-points
             comment.js - Contains all of the GraphQL information for the 'comment' api point
             info.js - Contains all of the GraphQL information for the 'info' api point
@@ -36,15 +36,15 @@ config.js - Contains all of the settings for the server.
             user.js - Contains all of the GraphQL information for the 'user' api point
     /auth
         auth.js - Contains tools for generating API keys and unique IDs
-        
+
     /database
         database.js - Contains all code for interfacing with MongoDB
-        
+
     /tools
         comment-tools.js - Implementation of the 'comment' api point
         post-tools.js - Implementation of the 'post' api point
         user-tools.js - Implementation of the 'user' api point
-    
+
     /validation
         validation.js - Middleware for validating all incoming data in GraphQL
 ```

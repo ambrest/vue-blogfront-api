@@ -6,7 +6,7 @@ It was designed to be used with our `vue-blogfront`, but can of course be used w
 
 ## Check out the companion project!
 
-Weighing in at just 100KB, `vue-blogfront` is an incredibly lightweight, fully featured partner to this repository. You'll love its beautiful simplicity and conformity to material design. 
+Weighing in at just 100KB, `vue-blogfront` is an incredibly lightweight, fully featured partner to this repository. You'll love its beautiful simplicity and conformity to material design.
 
 Not to mention it works out-of-the-box with `vue-blog-backend`!
 
@@ -20,7 +20,7 @@ cd vue-blog-backend
 node ./src/app.js
 ```
 
-Want to make some tweaks? Just update `/src/config.js`!
+Want to make some tweaks? Just update `/src/config.json`!
 
 ## Deployment
 
