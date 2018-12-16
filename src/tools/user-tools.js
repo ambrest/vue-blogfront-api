@@ -333,5 +333,7 @@ module.exports = {
 
             return true;
         });
-    }
+    },
+
+    User
 };

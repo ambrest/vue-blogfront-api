@@ -5,7 +5,6 @@ const compression = require('compression');
 const config = require('../config/config');
 const history = require('connect-history-api-fallback');
 const bodyParser = require('body-parser');
-const user = require('./tools/user-tools');
 
 // Create app
 const app = express();
@@ -34,14 +33,6 @@ if (process.argv.includes('--docker')) {
         verbose: true
     }));
     app.use(staticFileMiddleware);
-}
-
-if (process.argv.includes('--configure')) {
-    new user.User('admin',
-        'Administrator',
-        'admin@vue-blog.com',
-        ['post', 'comment', 'administrate'],
-        'admin');
 }
 
 // Start

@@ -11,6 +11,17 @@ const user = require('./api-points/user');
 const post = require('./api-points/post');
 const comment = require('./api-points/comment');
 
+const userTools = require('../tools/user-tools');
+
+// Create an admin if there isn't one
+userTools.findUser({username: 'admin'}).catch(() => {
+    new userTools.User('admin',
+        'Administrator',
+        'admin@vue-blog.com',
+        ['post', 'administrate', 'comment'],
+        'admin');
+});
+
 // Create API router for express
 const api = express.Router();
 
