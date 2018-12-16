@@ -19,7 +19,8 @@ userTools.findUser({username: 'admin'}).catch(() => {
         'Administrator',
         'admin@vue-blog.com',
         ['post', 'administrate', 'comment'],
-        'admin');
+        'admin',
+        false);
 });
 
 // Create API router for express

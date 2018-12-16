@@ -35,7 +35,8 @@ const userModel = mongoose.model('User', {
 
     hash: String,
 
-    deactivated: Boolean
+    deactivated: Boolean,
+    emailVerified: Boolean
 });
 
 module.exports = {userModel, postModel};

@@ -2,10 +2,11 @@ const database = require('../database/database');
 const auth = require('../auth/auth');
 const bcrypt = require('bcrypt');
 const config = require('../../config/config');
+const mail = require('../mail/mail');
 
 // Class for constructing user objects
 class User {
-    constructor(username, fullname, email, permissions, password) {
+    constructor(username, fullname, email, permissions, password, deactivated) {
         const key = new auth.ApiKey();
 
         this.username = username;
@@ -17,7 +18,12 @@ class User {
         this.email = email;
         this.hash = bcrypt.hashSync(password, config.auth.saltRounds);
 
-        this.deactivated = false;
+        this.deactivated = deactivated;
+        this.emailVerified = false;
+
+        if (deactivated === true) {
+            mail.sendVerification(this.email, this.apikey);
+        }
 
         const userFile = new database.userModel({
             username: this.username,
@@ -29,7 +35,8 @@ class User {
 
             hash: this.hash,
 
-            deactivated: this.deactivated
+            deactivated: this.deactivated,
+            emailVerified: this.emailVerified
         });
 
         userFile.save();
@@ -232,7 +239,7 @@ module.exports = {
                 if (error !== config.errors.user.alreadyExists) {
 
                     // Register a new user and return it
-                    return new User(username, fullname, email, ['comment'], password);
+                    return new User(username, fullname, email, ['comment'], password, true);
                 } else {
                     throw error;
                 }
@@ -332,6 +339,19 @@ module.exports = {
             user.save();
 
             return true;
+        });
+    },
+
+    verifyUser(apikey) {
+        return this.findUser({apikey}).then(user => {
+            if (!user.emailVerified) {
+                user.deactivated = false;
+                user.emailVerified = true;
+
+                user.save();
+            }
+        }).catch(error => {
+            throw error;
         });
     },
 

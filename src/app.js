@@ -1,5 +1,6 @@
 const express = require('express');
 const api = require('./api/api');
+const verify = require('./api/verify');
 const cors = require('cors');
 const compression = require('compression');
 const config = require('../config/config');
@@ -20,6 +21,9 @@ app.use(compression());
 
 // Allow CORS
 app.use(cors());
+
+// Email Verification
+app.use('/verify', verify);
 
 // GraphQL API Module
 app.use('/api', api);

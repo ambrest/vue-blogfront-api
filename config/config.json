@@ -1,12 +1,21 @@
 {
     "info": {
         "author": "Ambrest Designs LLC",
-        "version": 1.0,
-        "blogTitle": "Ambrest Blog"
+        "version": 1.0
     },
     "server": {
         "port": 4000,
-        "startingMessage": "Server started on port 4000..."
+        "startingMessage": "Server started on port 4000...",
+        "domain": "localhost:4000"
+    },
+    "mail": {
+        "host": "mail.blog.com",
+        "port": 465,
+        "secure": true,
+        "auth": {
+            "user": "mail@blog.com",
+            "pass": "password"
+        }
     },
     "auth": {
         "apikeyExpiry": 12960000000,
