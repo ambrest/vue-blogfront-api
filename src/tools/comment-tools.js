@@ -1,6 +1,7 @@
 const post = require('../tools/post-tools');
 const user = require('../tools/user-tools');
 const config = require('../../config/config');
+const errors = require('../../config/errors');
 const auth = require('../auth/auth');
 
 // Class for constructing new comments
@@ -43,7 +44,7 @@ module.exports = {
 
                 return newComment;
             } else {
-                throw config.errors.user.sufficientRights;
+                throw errors.user.sufficientRights;
             }
         });
     },
@@ -84,10 +85,10 @@ module.exports = {
 
                     return comment;
                 } else {
-                    throw config.errors.user.sufficientRights;
+                    throw errors.user.sufficientRights;
                 }
             } else {
-                throw config.errors.comment.notFound;
+                throw errors.comment.notFound;
             }
         });
     },
@@ -128,10 +129,10 @@ module.exports = {
 
                     return comment;
                 } else {
-                    throw config.errors.user.sufficientRights;
+                    throw errors.user.sufficientRights;
                 }
             } else {
-                throw config.errors.user.sufficientRights;
+                throw errors.user.sufficientRights;
             }
         });
     }

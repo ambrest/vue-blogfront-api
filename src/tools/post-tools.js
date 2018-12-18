@@ -2,6 +2,7 @@ const user = require('./user-tools');
 const database = require('../database/database');
 const auth = require('../auth/auth');
 const config = require('../../config/config');
+const errors = require('../../config/errors');
 
 // Class used to create new posts
 class Post {
@@ -67,7 +68,7 @@ module.exports = {
 
                 return post;
             } else {
-                throw config.errors.user.sufficientRights;
+                throw errors.user.sufficientRights;
             }
         });
     },
@@ -88,7 +89,7 @@ module.exports = {
             if (postingUser.permissions.includes('post')) {
                 return new Post(title, postingUser.id, body);
             } else {
-                throw config.errors.user.sufficientRights;
+                throw errors.user.sufficientRights;
             }
         });
     },
@@ -104,7 +105,7 @@ module.exports = {
             if (post) {
                 return post;
             } else {
-                throw config.errors.post.notFound;
+                throw errors.post.notFound;
             }
         });
     },
@@ -120,7 +121,7 @@ module.exports = {
             if (postDocs) {
                 return postDocs;
             } else {
-                throw config.errors.post.notFound;
+                throw errors.post.notFound;
             }
         });
     },
@@ -143,7 +144,7 @@ module.exports = {
             if (postDocs) {
                 return postDocs;
             } else {
-                throw config.errors.post.notFound;
+                throw errors.post.notFound;
             }
         });
     },
@@ -160,7 +161,7 @@ module.exports = {
             if (posts) {
                 return posts;
             } else {
-                throw config.errors.post.notFound;
+                throw errors.post.notFound;
             }
         });
     },
@@ -190,7 +191,7 @@ module.exports = {
                 // Delete the post from the database
                 return database.postModel.findOneAndDelete({id}).exec();
             } else {
-                throw config.errors.user.sufficientRights;
+                throw errors.user.sufficientRights;
             }
         });
     },
@@ -208,7 +209,7 @@ module.exports = {
             if (posts) {
                 return posts.slice(start - 1, end + 1);
             } else {
-                throw config.errors.post.notFound;
+                throw errors.post.notFound;
             }
         });
     },
@@ -225,7 +226,7 @@ module.exports = {
             if (posts) {
                 return posts;
             } else {
-                throw config.errors.post.notFound;
+                throw errors.post.notFound;
             }
         });
     }

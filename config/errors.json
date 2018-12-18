@@ -1,0 +1,31 @@
+{
+    "invalid": {
+        "username": "A username should contain only numbers, letters, and underscores. No other characters are permitted.",
+        "id": "Invalid ID.",
+        "apikey": "Invalid APIKey, please try logging out and back in.",
+        "password": "A Password cannot contain spaces.",
+        "fullname": "Please provide a first and last name or last initial.",
+        "email": "Please enter a valid email address.",
+        "permissions": "Invalid permissions.",
+        "title": "Please enter a title between 1 and 200 characters long.",
+        "body": "Your body is invalid.",
+        "tooManyArgs": "Too many arguments."
+    },
+    "missing": {
+        "all": "You must provide arguments.",
+        "some": "You have not provided all required arguments."
+    },
+    "user": {
+        "sufficientRights": "You are not allowed to do this.",
+        "notFound": "This user could not be found, did you misspell something?",
+        "alreadyExists": "A user with this username already exists, please try another.",
+        "deactivated": "This user is deactivated. Please contact your site administrator.",
+        "wrongPassword": "The password you have entered was incorrect, please try again."
+    },
+    "post": {
+        "notFound": "Post was not found."
+    },
+    "comment": {
+        "notFound": "Comment was not found."
+    }
+}

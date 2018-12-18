@@ -2,11 +2,12 @@ const database = require('../database/database');
 const auth = require('../auth/auth');
 const bcrypt = require('bcrypt');
 const config = require('../../config/config');
+const errors = require('../../config/errors');
 const mail = require('../mail/mail');
 
 // Class for constructing user objects
 class User {
-    constructor(username, fullname, email, permissions, password, deactivated) {
+    constructor(username, fullname, email, permissions, password) {
         const key = new auth.ApiKey();
 
         this.username = username;
@@ -17,13 +18,16 @@ class User {
         this.permissions = permissions;
         this.email = email;
         this.hash = bcrypt.hashSync(password, config.auth.saltRounds);
-
-        this.deactivated = deactivated;
         this.emailVerified = false;
 
-        if (deactivated === true) {
-            mail.sendVerification(this.email, this.apikey);
+        if (config.server.emailVerification) {
+            this.deactivated = true;
+
+            mail.sendVerification(this);
+        } else {
+            this.deactivated = false;
         }
+
 
         const userFile = new database.userModel({
             username: this.username,
@@ -100,7 +104,7 @@ module.exports = {
                 user.save();
                 return user;
             } else {
-                throw config.errors.user.sufficientRights;
+                throw errors.user.sufficientRights;
             }
         });
     },
@@ -126,7 +130,7 @@ module.exports = {
                         if (user) {
                             return resolve(user);
                         } else {
-                            return reject(config.errors.user.notFound);
+                            return reject(errors.user.notFound);
                         }
                     }
                 });
@@ -152,7 +156,7 @@ module.exports = {
                         if (user) {
                             return resolve(user);
                         } else {
-                            return reject(config.errors.user.notFound);
+                            return reject(errors.user.notFound);
                         }
                     }
                 });
@@ -166,7 +170,7 @@ module.exports = {
                         if (user) {
                             return resolve(user);
                         } else {
-                            return reject(config.errors.user.notFound);
+                            return reject(errors.user.notFound);
                         }
                     }
                 });
@@ -194,7 +198,7 @@ module.exports = {
 
                     // Check permissions of calling user
                     if (!(callingUser.id === user.id || callingUser.permissions.includes('administrate')) || callingUser.deactivated) {
-                        throw config.errors.user.sufficientRights;
+                        throw errors.user.sufficientRights;
                     }
                 });
             } else {
@@ -222,17 +226,17 @@ module.exports = {
         // Check to see if the user already exists and throw error if so
         return this.findUser({username})
             .then(() => {
-                throw config.errors.user.alreadyExists;
+                throw errors.user.alreadyExists;
             })
 
             // Register a new user if none is found
             .catch(error => {
 
                 // Make sure that we're not catching the error above
-                if (error !== config.errors.user.alreadyExists) {
+                if (error !== errors.user.alreadyExists) {
 
                     // Register a new user and return it
-                    return new User(username, fullname, email, ['comment'], password, true);
+                    return new User(username, fullname, email, ['comment'], password);
                 } else {
                     throw error;
                 }
@@ -259,7 +263,7 @@ module.exports = {
 
                     // Compare password hash
                     if (!bcrypt.compareSync(password, user.hash)) {
-                        throw config.errors.user.wrongPassword;
+                        throw errors.user.wrongPassword;
                     }
                 }
 
@@ -277,7 +281,7 @@ module.exports = {
 
                 return user;
             } else {
-                throw config.errors.user.deactivated;
+                throw errors.user.deactivated;
             }
         });
     },
@@ -303,12 +307,12 @@ module.exports = {
                             return doc.id !== user.id;
                         });
                     } else {
-                        throw config.errors.post.notFound;
+                        throw errors.post.notFound;
                     }
                 });
 
             } else {
-                throw config.errors.user.sufficientRights;
+                throw errors.user.sufficientRights;
             }
         });
     },
@@ -335,13 +339,23 @@ module.exports = {
         });
     },
 
+    /**
+     * Validates a user's email address with an API key
+     * @param apikey - apikey sent to the user via email
+     */
     verifyUser(apikey) {
         return this.findUser({apikey}).then(user => {
             if (!user.emailVerified) {
+
+                // Set user properties
                 user.deactivated = false;
                 user.emailVerified = true;
 
+                // Save him
                 user.save();
+
+                // Invalidate the api key used to verify the email address
+                logout({apikey});
             }
         }).catch(error => {
             throw error;

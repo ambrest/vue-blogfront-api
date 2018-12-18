@@ -1,5 +1,5 @@
 const user = require('../../tools/user-tools');
-const config = require('../../../config/config');
+const errors = require('../../../config/errors');
 
 // Definition of the post class for GraphQL
 const typeDef = `
@@ -41,7 +41,7 @@ const resolver = {
 
             // Make sure all required arguments are present
             if (!args.username && !args.id && !args.apikey) {
-                throw config.errors.missing.all;
+                throw errors.missing.all;
             }
 
             // Perform action and return promise
@@ -56,11 +56,6 @@ const resolver = {
 
         register(obj, args) {
 
-            // Make sure all required arguments are present
-            if (!args.username || !args.password || !args.fullname || !args.email) {
-                throw config.errors.missing.some;
-            }
-
             // Perform action and return promise
             return user.registerUser(args);
         },
@@ -69,7 +64,7 @@ const resolver = {
 
             // Make sure all required arguments are present
             if ((!args.username && !args.password) && !args.apikey) {
-                throw config.errors.missing.all;
+                throw errors.missing.all;
             }
 
             // Perform action and return promise
@@ -78,21 +73,11 @@ const resolver = {
 
         updateUser(obj, args) {
 
-            // Make sure all required arguments are present
-            if (!args.apikey || !args.id) {
-                throw config.errors.missing.some;
-            }
-
             // Perform action and return promise
             return user.updateUser(args);
         },
 
         logout(_, args) {
-
-            // Make sure all required arguments are present
-            if (!args.apikey) {
-                throw config.errors.missing.all;
-            }
 
             // Perform action and return promise
             return user.logout(args);

@@ -4,6 +4,7 @@ const graphqlHTTP = require('express-graphql');
 const {makeExecutableSchema} = require('graphql-tools');
 const {applyMiddleware} = require('graphql-middleware');
 const validation = require('../validation/validation');
+const verify = require('./verify');
 
 // API Points
 const info = require('./api-points/info');
@@ -19,8 +20,7 @@ userTools.findUser({username: 'admin'}).catch(() => {
         'Administrator',
         'admin@vue-blog.com',
         ['post', 'administrate', 'comment'],
-        'admin',
-        false);
+        'admin');
 });
 
 // Create API router for express
@@ -45,6 +45,9 @@ const resolvers = [info.resolver, user.resolver, post.resolver, comment.resolver
 
 // Combine all API modules into one and apply validation middleware to validate incoming arguments
 const schema = applyMiddleware(makeExecutableSchema({typeDefs, resolvers}), validation);
+
+// Add Verification route
+api.use('/verify', verify);
 
 // Start listening
 api.use('/', graphqlHTTP({

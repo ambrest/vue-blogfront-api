@@ -1,6 +1,8 @@
 const user = require('../../tools/user-tools');
 const config = require('../../../config/config');
 const comment = require('../../tools/comment-tools');
+const errors = require('../../../config/errors');
+
 
 // Definition of the comment class for GraphQL
 const typeDef = `
@@ -34,7 +36,7 @@ const resolver = {
 
             // Make sure all required arguments are present
             if (!args.apikey || !args.postid || !args.body) {
-                throw config.errors.missing.some;
+                throw errors.missing.some;
             }
 
             // Perform action and return promise
@@ -45,7 +47,7 @@ const resolver = {
 
             // Make sure all required arguments are present
             if (!args.apikey || !args.postid || !args.id) {
-                throw config.errors.missing.some;
+                throw errors.missing.some;
             }
 
             // Perform action and return promise
@@ -56,7 +58,7 @@ const resolver = {
 
             // Make sure all required arguments are present
             if (!args.apikey || !args.postid || !args.id || !args.body) {
-                throw config.errors.missing.some;
+                throw errors.missing.some;
             }
 
             // Perform action and return promise
