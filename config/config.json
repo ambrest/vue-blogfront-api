@@ -19,7 +19,6 @@
     },
     "auth": {
         "apikeyExpiry": 12960000000,
-        // 15 Days
         "saltRounds": 10
     },
     "errors": {

@@ -73,13 +73,7 @@ module.exports = {
 
                 // Check if permissions are being updated
                 if (permissions) {
-
-                    // Make sure the user is an admin if updating permissions
-                    if (updatingUser.permissions.includes('administrate')) {
-                        user.permissions = permissions;
-                    } else {
-                        throw config.errors.user.sufficientRights;
-                    }
+                    user.permissions = permissions;
                 }
 
                 // Change name
@@ -104,7 +98,6 @@ module.exports = {
 
                 // Commit changes
                 user.save();
-
                 return user;
             } else {
                 throw config.errors.user.sufficientRights;
