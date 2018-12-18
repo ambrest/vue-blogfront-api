@@ -116,7 +116,7 @@ module.exports = {
     getAllPosts() {
 
         // Resolve all posts on the server
-        return database.postModel.find({}).exec().then(postDocs => {
+        return database.postModel.find({}).sort('-timestamp').exec().then(postDocs => {
             if (postDocs) {
                 return postDocs;
             } else {
@@ -134,7 +134,12 @@ module.exports = {
     getPostRange({timestart, timeend}) {
 
         // Resolve all posts in given timerange from the database
-        return database.postModel.find({timestamp: {$gte: timestart, $lte: timeend}}).exec().then(postDocs => {
+        return database.postModel.find({
+            timestamp: {
+                $gte: timestart,
+                $lte: timeend
+            }
+        }).sort('-timestamp').exec().then(postDocs => {
             if (postDocs) {
                 return postDocs;
             } else {
@@ -151,9 +156,9 @@ module.exports = {
     getPostCount({count}) {
 
         // Resolve post count
-        return database.postModel.find({}).limit(count).exec().then(amount => {
-            if (amount) {
-                return amount;
+        return database.postModel.find({}).sort('-timestamp').limit(count).exec().then(posts => {
+            if (posts) {
+                return posts;
             } else {
                 throw config.errors.post.notFound;
             }
@@ -186,6 +191,41 @@ module.exports = {
                 return database.postModel.findOneAndDelete({id}).exec();
             } else {
                 throw config.errors.user.sufficientRights;
+            }
+        });
+    },
+
+    /**
+     * Get all posts in a certain number range
+     * @param start - most recent post, *1* is the most recent!
+     * @param end - oldest post, INCLUSIVE
+     * @returns {Promise} - an array of posts
+     */
+    getPostCountRange({start, end}) {
+
+        // Resolve post count
+        return database.postModel.find({}).sort('-timestamp').exec().then(posts => {
+            if (posts) {
+                return posts.slice(start - 1, end + 1);
+            } else {
+                throw config.errors.post.notFound;
+            }
+        });
+    },
+
+    /**
+     * Get all posts made by a specific user
+     * @param userid - the user that made the posts
+     * @returns {Promise} - an array of posts
+     */
+    getPostsBy({userid}) {
+
+        // Resolve all posts by the user with the above userid
+        return database.postModel.find({author: userid}).sort('-timestamp').exec().then(posts => {
+            if (posts) {
+                return posts;
+            } else {
+                throw config.errors.post.notFound;
             }
         });
     }

@@ -6,7 +6,8 @@
     "server": {
         "port": 4000,
         "startingMessage": "Server started on port 4000...",
-        "domain": "localhost:4000"
+        "domain": "localhost:4000",
+        "emailVerification": true
     },
     "mail": {
         "host": "mail.blog.com",

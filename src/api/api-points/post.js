@@ -1,6 +1,5 @@
 const post = require('../../tools/post-tools');
 const user = require('../../tools/user-tools');
-const config = require('../../../config/config');
 
 // Definition of the post class for GraphQL
 const typeDef = `
@@ -34,7 +33,9 @@ const query = `
     updatePost(apikey: String!, id: String!, title: String, body: String): Post,
     getPost(id: String!): Post,
     getPostRange(timestart: Float!, timeend: Float!): [Post],
+    getPostCountRange(start: Int!, end: Int!): [Post],
     getPostCount(count: Int!): [Post],
+    getPostsBy(userid: String!): [Post],
     getAllPosts: [Post]
 `;
 
@@ -43,32 +44,17 @@ const resolver = {
     Query: {
         post(_, args) {
 
-            // Make sure all required arguments are present
-            if (!args.title || !args.body || !args.apikey) {
-                throw config.errors.missing.some;
-            }
-
             // Perform action and return promise
             return post.writePost(args);
         },
 
         getPost(_, args) {
 
-            // Make sure all required arguments are present
-            if (!args.id) {
-                throw config.errors.missing.all;
-            }
-
             // Perform action and return promise
             return post.getPost(args);
         },
 
         updatePost(_, args) {
-
-            // Make sure all required arguments are present
-            if (!args.apikey || !args.id) {
-                throw config.errors.missing.some;
-            }
 
             // Perform action and return promise
             return post.updatePost(args);
@@ -94,13 +80,18 @@ const resolver = {
 
         removePost(_, args) {
 
-            // Make sure all required arguments are present
-            if (!args.id && !args.apikey) {
-                throw config.errors.missing.all;
-            }
-
             // Perform action and return promise
             return post.removePost(args);
+        },
+
+        getPostCountRange(_, args) {
+
+            // Perform action and return promise
+            return post.getPostCountRange(args);
+        },
+
+        getPostsBy(_, args) {
+            return post.getPostsBy(args);
         }
     },
 
@@ -109,7 +100,6 @@ const resolver = {
         // For simplification purposes, users are stored in posts as just their IDs.
         // When a query for a comment user is made, this function is called to resolve it.
         user(obj) {
-
             // Perform action and return promise
             return user.getUser({id: obj.author});
         }
