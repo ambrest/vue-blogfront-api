@@ -30,12 +30,16 @@ app.use('/api', api);
 
 // Serve static
 if (process.argv.includes('--docker')) {
-    const staticFileMiddleware = express.static('../dist');
+
+    // Use maxAge: 0 to force the browser to reload the service-worker
+    const staticFileMiddleware = express.static('../dist', {maxAge: 0});
     app.use(staticFileMiddleware);
+
     app.use(history({
         disableDotRule: true,
         verbose: true
     }));
+
     app.use(staticFileMiddleware);
 }
 
