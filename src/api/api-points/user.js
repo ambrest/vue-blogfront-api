@@ -23,6 +23,7 @@ const typeDef = `
  * getAllUsers: get all existing users
  * register: register a new user
  * login: get a new apikey for a user
+ * recoverPassword: send user an email to recover their password
  * @type {string}
  */
 const query = `
@@ -31,13 +32,14 @@ const query = `
     updateUser(apikey: String!, id: String!, permissions: [String], password: String, fullname: String, email: String, deactivated: Boolean): User,
     getAllUsers(apikey: String!): [User],
     register(username: String!, password: String!, fullname: String!, email: String!): User,
-    login(username: String, password: String, apikey: String): User
+    login(username: String, password: String, apikey: String): User,
+    recoverPassword(email: String!): Boolean
 `;
 
 const resolver = {
 
     Query: {
-        user(obj, args) {
+        user(_, args) {
 
             // Make sure all required arguments are present
             if (!args.username && !args.id && !args.apikey) {
@@ -54,13 +56,13 @@ const resolver = {
             return user.getAllUsers(args);
         },
 
-        register(obj, args) {
+        register(_, args) {
 
             // Perform action and return promise
             return user.registerUser(args);
         },
 
-        login(obj, args) {
+        login(_, args) {
 
             // Make sure all required arguments are present
             if ((!args.username && !args.password) && !args.apikey) {
@@ -71,7 +73,7 @@ const resolver = {
             return user.loginUser(args);
         },
 
-        updateUser(obj, args) {
+        updateUser(_, args) {
 
             // Perform action and return promise
             return user.updateUser(args);
@@ -81,6 +83,12 @@ const resolver = {
 
             // Perform action and return promise
             return user.logout(args);
+        },
+
+        recoverPassword(_, args) {
+
+            // Perform action and return promise
+            return user.recoverPassword(args);
         }
     }
 };

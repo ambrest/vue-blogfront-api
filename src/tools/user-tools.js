@@ -28,7 +28,6 @@ class User {
             this.deactivated = false;
         }
 
-
         const userFile = new database.userModel({
             username: this.username,
             apikeys: this.apikeys,
@@ -114,66 +113,38 @@ module.exports = {
      * @param username - OPTIONAL gets user by their username
      * @param id - OPTIONAL gets user by their id
      * @param apikey - OPTIONAL gets user by their API key. If the API key is expired, USER NOT FOUND is thrown
+     * @param email - OPTIONAL gets user by their VERIFIED email address
      * @returns {Promise} - user that is searched
      */
-    findUser({username, id, apikey}) {
-        return new Promise(async (resolve, reject) => {
+    findUser({username, id, apikey, email}) {
 
-            // Get user by username
-            if (username) {
-
-                // Resolve user
-                await database.userModel.findOne({username}, (error, user) => {
-                    if (error) {
-                        return reject(error);
-                    } else {
-                        if (user) {
-                            return resolve(user);
-                        } else {
-                            return reject(errors.user.notFound);
+        // Use some sweet ES6 trickery to build a query with only given args
+        const queryOptions = {
+            ...(username ? {username} : {}),
+            ...(id ? {id} : {}),
+            ...(apikey ? {
+                apikeys: {
+                    $elemMatch: {
+                        key: apikey, // Match key
+                        expiry: {
+                            $gte: Date.now() // Make sure that the API key is not expired
                         }
                     }
-                });
-            } else if (apikey) { // Get user by API key. If the API key is expired, USER NOT FOUND is thrown
+                }
+            } : {}),
+            ...(email ? {email} : {})
+        };
 
-                // Query to find the user with. Separated due to complexity.
-                const queryOptions = {
-                    apikeys: {
-                        $elemMatch: {
-                            key: apikey, // Match key
-                            expiry: {
-                                $gte: Date.now() // Make sure that the API key is not expired
-                            }
-                        }
-                    }
-                };
-
-                // Resolve user
-                await database.userModel.findOne(queryOptions, (error, user) => {
-                    if (error) {
-                        return reject(error);
-                    } else {
-                        if (user) {
-                            return resolve(user);
-                        } else {
-                            return reject(errors.user.notFound);
-                        }
-                    }
-                });
-            } else if (id) { // Gets user by their ID
-
-                // Resolve user
-                await database.userModel.findOne({id}, (error, user) => {
-                    if (error) {
-                        return reject(error);
-                    } else {
-                        if (user) {
-                            return resolve(user);
-                        } else {
-                            return reject(errors.user.notFound);
-                        }
-                    }
-                });
+        // Resolve user
+        return database.userModel.findOne(queryOptions).exec().then((error, user) => {
+            if (error) {
+                throw error;
+            } else {
+                if (user) {
+                    return user;
+                } else {
+                    throw errors.user.notFound;
+                }
             }
         });
     },
@@ -344,6 +315,8 @@ module.exports = {
      * @param apikey - apikey sent to the user via email
      */
     verifyUser(apikey) {
+
+        // Resolve user
         return this.findUser({apikey}).then(user => {
             if (!user.emailVerified) {
 
@@ -359,6 +332,29 @@ module.exports = {
             }
         }).catch(error => {
             throw error;
+        });
+    },
+
+    /**
+     * Send user a password recovery email if their email address is verified
+     * @param email - email of the user to send recovery to
+     */
+    recoverPassword({email}) {
+
+        // Resolve user
+        return this.findUser({email}).then(user => {
+            if (user.emailVerified && !user.deactivated) {
+                user.apikey = new auth.ApiKey();
+                user.apikeys.push(user.apikey);
+
+                user.save();
+
+                mail.recoverPassword(user);
+
+                return true;
+            } else {
+                throw errors.user.deactivated;
+            }
         });
     },
 

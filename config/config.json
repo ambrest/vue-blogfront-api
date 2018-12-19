@@ -9,13 +9,13 @@
         "startingMessage": "Server started on port 4000...",
         "domain": "localhost:3007",
         "api": "localhost:4000",
-        "emailVerification": true
+        "emailVerification": false
     },
     "mail": {
         "service": "gmail",
         "auth": {
-            "user": "ambrestdesigns@gmail.com",
-            "pass": "qP2YUC%61fjD"
+            "user": "email",
+            "pass": "pass"
         }
     },
     "auth": {
