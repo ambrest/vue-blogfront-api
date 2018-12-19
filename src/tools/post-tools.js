@@ -205,13 +205,18 @@ module.exports = {
     getPostCountRange({start, end}) {
 
         // Resolve post count
-        return database.postModel.find({}).sort('-timestamp').exec().then(posts => {
-            if (posts) {
-                return posts.slice(start - 1, end + 1);
-            } else {
-                throw errors.post.notFound;
-            }
-        });
+        return database.postModel.find({})
+            .sort('-timestamp')
+            .skip(start)
+            .limit(end)
+            .exec()
+            .then(posts => {
+                if (posts) {
+                    return posts;
+                } else {
+                    throw errors.post.notFound;
+                }
+            });
     },
 
     /**

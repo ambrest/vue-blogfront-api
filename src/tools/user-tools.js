@@ -136,15 +136,11 @@ module.exports = {
         };
 
         // Resolve user
-        return database.userModel.findOne(queryOptions).exec().then((error, user) => {
-            if (error) {
-                throw error;
+        return database.userModel.findOne(queryOptions).exec().then(user => {
+            if (user) {
+                return user;
             } else {
-                if (user) {
-                    return user;
-                } else {
-                    throw errors.user.notFound;
-                }
+                throw errors.user.notFound;
             }
         });
     },
@@ -328,10 +324,9 @@ module.exports = {
                 user.save();
 
                 // Invalidate the api key used to verify the email address
-                logout({apikey});
+                // TODO Does this work?
+                this.logout({apikey});
             }
-        }).catch(error => {
-            throw error;
         });
     },
 

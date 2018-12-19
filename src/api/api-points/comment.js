@@ -3,7 +3,6 @@ const config = require('../../../config/config');
 const comment = require('../../tools/comment-tools');
 const errors = require('../../../config/errors');
 
-
 // Definition of the comment class for GraphQL
 const typeDef = `
     type Comment {

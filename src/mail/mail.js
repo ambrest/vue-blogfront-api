@@ -13,7 +13,7 @@ module.exports = {
         const options = {
             from: `Vue-Blogfront <${config.mail.auth.user}>`,
             to: user.email,
-            subject: "Email Verification",
+            subject: 'Email Verification',
             html: `
             <div class="main">
                 <h1>Welcome to ${config.info.title}, ${user.fullname}!</h1>
@@ -37,7 +37,7 @@ module.exports = {
         const options = {
             from: `Vue-Blogfront <${config.mail.auth.user}>`,
             to: user.email,
-            subject: "Email Verification",
+            subject: 'Email Verification',
             html: `
             <div class="main">
                 <h1>Hey ${user.fullname}! Forgot your password?</h1>
