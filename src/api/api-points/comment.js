@@ -1,5 +1,4 @@
 const user = require('../../tools/user-tools');
-const config = require('../../../config/config');
 const comment = require('../../tools/comment-tools');
 const errors = require('../../../config/errors');
 

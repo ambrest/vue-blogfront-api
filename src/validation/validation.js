@@ -1,4 +1,3 @@
-const config = require('../../config/config');
 const errors = require('../../config/errors');
 const tests = require('../../config/regexTests');
 

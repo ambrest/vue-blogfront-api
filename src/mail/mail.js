@@ -24,7 +24,7 @@ module.exports = {
             `
         };
 
-        transporter.sendMail(options, (error, info) => {
+        transporter.sendMail(options, error => {
             if (error) throw error;
         });
     },
@@ -48,7 +48,7 @@ module.exports = {
             `
         };
 
-        transporter.sendMail(options, (error, info) => {
+        transporter.sendMail(options, error => {
             if (error) throw error;
         });
     }

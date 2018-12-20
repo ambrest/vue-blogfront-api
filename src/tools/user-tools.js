@@ -154,27 +154,31 @@ module.exports = {
      * @returns {Promise} - the requested user
      */
     getUser({username, id, apikey}) {
+
         // Resolve user being searched
         return this.findUser({username, id}).then(user => {
+
+            // NEVER send the API key or Hash of a user
+            user.apikey = null;
+            user.hash = null;
 
             // Check API key if provided
             if (apikey) {
 
                 // Resolve calling user
-                this.findUser({apikey}).then(callingUser => {
+                return this.findUser({apikey}).then(callingUser => {
 
                     // Check permissions of calling user
                     if (!(callingUser.id === user.id || callingUser.permissions.includes('administrate')) || callingUser.deactivated) {
-                        throw errors.user.sufficientRights;
+                        user.email = null;
                     }
+
+                    return user;
                 });
+
             } else {
                 user.email = null;
             }
-
-            // NEVER send the API key or Hash of a user
-            user.apikey = null;
-            user.hash = null;
 
             return user;
         });

@@ -1,6 +1,5 @@
 const post = require('../tools/post-tools');
 const user = require('../tools/user-tools');
-const config = require('../../config/config');
 const errors = require('../../config/errors');
 const auth = require('../auth/auth');
 
