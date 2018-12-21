@@ -7,7 +7,9 @@ const verify = express.Router();
 
 verify.get('/:apikey', (req, res) => {
     user.verifyUser(req.params.apikey).then(() => {
-        res.status(301).redirect(`${config.server.domain}/login`);
+        res.status(302).redirect(`${config.server.domain}/login`);
+    }).catch(() => {
+        res.status(302).redirect(`${config.server.domain}/`);
     });
 });
 
