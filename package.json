@@ -2,7 +2,7 @@
     "name": "scalable-blog-backend",
     "version": "1.0.0",
     "description": "Scalable blog backend",
-    "main": "main.js",
+    "main": "/src/app.js",
     "scripts": {
         "test": "nodemon ./src/app.js",
         "launch": "node ./src/app.js",

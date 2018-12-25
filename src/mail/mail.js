@@ -1,6 +1,10 @@
 const nodeMailer = require('nodemailer');
 const config = require('../../config/config');
 
+// Email templates
+const verifyEmailTemplate = require('./verifyEmailTemplate');
+const recoverPasswordTemplate = require('./recoverPasswordTemplate');
+
 const transporter = nodeMailer.createTransport(config.mail);
 
 module.exports = {
@@ -14,14 +18,7 @@ module.exports = {
             from: `Vue-Blogfront <${config.mail.auth.user}>`,
             to: user.email,
             subject: 'Email Verification',
-            html: `
-            <div class="main">
-                <h1>Welcome to ${config.info.title}, ${user.fullname}!</h1>
-                <a href="${config.server.api}/verify/${user.apikey}">Please click this link to verify your email address!</a>
-                
-                <p> Did you know that ${config.info.title} runs on the open source software <b>vue-blogfront</b> by Ambrest Designs LLC?</p>
-            </div>
-            `
+            html: verifyEmailTemplate({user, config})
         };
 
         transporter.sendMail(options, error => {
@@ -38,14 +35,7 @@ module.exports = {
             from: `Vue-Blogfront <${config.mail.auth.user}>`,
             to: user.email,
             subject: 'Email Verification',
-            html: `
-            <div class="main">
-                <h1>Hey ${user.fullname}! Forgot your password?</h1>
-                <a href="${config.server.domain}/recover/${user.apikey.key}">Please click this link to reset your password!</a>
-                
-                <p> Did you know that ${config.info.title} runs on the open source software <bold>vue-blogfront</bold> by Ambrest Designs LLC?</p>
-            </div>
-            `
+            html: recoverPasswordTemplate({user, config})
         };
 
         transporter.sendMail(options, error => {
