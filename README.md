@@ -1,4 +1,7 @@
-# <img src="./img/logo.svg" width="50x" height="50px"> vue-blog-backend
+<h4 align="center">
+    <img src="./img/logo.svg" width="20%" height="20%">
+    <h3 align="center">Vue-Blogfront GraphQL API</h3>
+</h4>
 
 `vue-blog-backend` is a simple, expandable and agile blog backend built by Ambrest Designs LLC with `express`, `mongodb` and `graphql`.
 

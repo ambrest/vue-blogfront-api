@@ -1,4 +1,7 @@
-# <img src="./img/logo.svg" width="50x" height="50px"> Glossary
+<h4 align="center">
+    <img src="./img/logo.svg" width="20%" height="20%">
+    <h3 align="center">Glossary</h3>
+</h4>
 
 This document will serve to be an overview of the code found in this repository, aiming to make the function of all of its parts clear and understandable, making it easier for one to contribute.
 
