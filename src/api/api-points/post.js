@@ -42,55 +42,55 @@ const query = `
 const resolver = {
 
     Query: {
-        post(_, args) {
+        async post(_, args) {
 
             // Perform action and return promise
             return post.writePost(args);
         },
 
-        getPost(_, args) {
+        async getPost(_, args) {
 
             // Perform action and return promise
             return post.getPost(args);
         },
 
-        updatePost(_, args) {
+        async updatePost(_, args) {
 
             // Perform action and return promise
             return post.updatePost(args);
         },
 
-        getPostRange(_, args) {
+        async getPostRange(_, args) {
 
             // Perform action and return promise
             return post.getPostRange(args);
         },
 
-        getPostCount(_, args) {
+        async getPostCount(_, args) {
 
             // Perform action and return promise
             return post.getPostCount(args);
         },
 
-        getAllPosts() {
+        async getAllPosts() {
 
             // Perform action and return promise
             return post.getAllPosts();
         },
 
-        removePost(_, args) {
+        async removePost(_, args) {
 
             // Perform action and return promise
             return post.removePost(args);
         },
 
-        getPostCountRange(_, args) {
+        async getPostCountRange(_, args) {
 
             // Perform action and return promise
             return post.getPostCountRange(args);
         },
 
-        getPostsBy(_, args) {
+        async getPostsBy(_, args) {
             return post.getPostsBy(args);
         }
     },

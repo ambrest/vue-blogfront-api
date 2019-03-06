@@ -14,6 +14,7 @@ class Comment {
 }
 
 module.exports = {
+
     /**
      * Post a new comment
      * @param apikey - apikey of the posting user. Must have 'comment' permission
@@ -21,7 +22,7 @@ module.exports = {
      * @param body - body of the comment
      * @returns {Promise} - the comment
      */
-    comment({apikey, postid, body}) {
+    async comment({apikey, postid, body}) {
         // Post to add the comment to
         let thisPost;
 
@@ -55,7 +56,7 @@ module.exports = {
      * @param id - the ID of the comment to delete
      * @returns {Promise} - the comment
      */
-    removeComment({apikey, postid, id}) {
+    async removeComment({apikey, postid, id}) {
         // Post to remove comment from
         let thisPost;
 
@@ -100,7 +101,7 @@ module.exports = {
      * @param body - new body for the comment
      * @returns {Promise} - the updated comment
      */
-    updateComment({apikey, postid, id, body}) {
+    async updateComment({apikey, postid, id, body}) {
 
         // Post to update
         let thisPost;

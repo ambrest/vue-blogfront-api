@@ -1,3 +1,5 @@
+global._productionMode = process.argv.includes('--docker');
+
 const express = require('express');
 const api = require('./api/api');
 const verify = require('./api/verify');
@@ -29,7 +31,7 @@ app.use('/verify', verify);
 app.use('/api', api);
 
 // Serve static
-if (process.argv.includes('--docker')) {
+if (_productionMode) {
 
     // Use maxAge: 0 to force the browser to reload the service-worker
     const staticFileMiddleware = express.static('../dist', {maxAge: 0});

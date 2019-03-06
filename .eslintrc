@@ -13,5 +13,8 @@
     "rules": {
         "no-cond-assign": "off",
         "no-unused-vars": "warn"
+    },
+    "globals": {
+        "_productionMode": true
     }
 }

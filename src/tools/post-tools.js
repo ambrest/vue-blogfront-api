@@ -36,7 +36,7 @@ module.exports = {
      * @param body - OPTIONAL a new body for the post.
      * @returns {Promise} - the updated post
      */
-    updatePost({apikey, id, title, body}) {
+    async updatePost({apikey, id, title, body}) {
 
         // Post to update
         let post;
@@ -79,7 +79,7 @@ module.exports = {
      * @param body - body of the new post
      * @returns {Promise} - the new post
      */
-    writePost({apikey, title, body}) {
+    async writePost({apikey, title, body}) {
 
         // Resolve user
         return user.findUser({apikey}).then(postingUser => {
@@ -98,7 +98,7 @@ module.exports = {
      * @param id - ID of the post
      * @returns {Promise} - the post
      */
-    getPost({id}) {
+    async getPost({id}) {
         // Resolve post in the database
         return database.postModel.findOne({id}).exec().then(post => {
             if (post) {
@@ -113,7 +113,7 @@ module.exports = {
      * Get all posts on the server
      * @returns {Promise} - an array of posts
      */
-    getAllPosts() {
+    async getAllPosts() {
 
         // Resolve all posts on the server
         return database.postModel.find({}).sort('-timestamp').exec().then(postDocs => {
@@ -131,7 +131,7 @@ module.exports = {
      * @param timeend - the end of the range
      * @returns {Promise} - an array of all posts in the given range
      */
-    getPostRange({timestart, timeend}) {
+    async getPostRange({timestart, timeend}) {
 
         // Resolve all posts in given timerange from the database
         return database.postModel.find({
@@ -153,7 +153,7 @@ module.exports = {
      * @param count - the number of posts to get
      * @returns {Promise} - an array of posts
      */
-    getPostCount({count}) {
+    async getPostCount({count}) {
 
         // Resolve post count
         return database.postModel.find({}).sort('-timestamp').limit(count).exec().then(posts => {
@@ -171,7 +171,7 @@ module.exports = {
      * @param id - ID of the post to remove
      * @returns {Promise} - the removed post
      */
-    removePost({apikey, id}) {
+    async removePost({apikey, id}) {
 
         // Post to remove
         let removingPost;
@@ -201,7 +201,7 @@ module.exports = {
      * @param end - oldest post, INCLUSIVE
      * @returns {Promise} - an array of posts
      */
-    getPostCountRange({start, end}) {
+    async getPostCountRange({start, end}) {
 
         // Resolve post count
         return database.postModel.find({})
@@ -223,7 +223,7 @@ module.exports = {
      * @param userid - the user that made the posts
      * @returns {Promise} - an array of posts
      */
-    getPostsBy({userid}) {
+    async getPostsBy({userid}) {
 
         // Resolve all posts by the user with the above userid
         return database.postModel.find({author: userid}).sort('-timestamp').exec().then(posts => {

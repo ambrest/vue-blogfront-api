@@ -20,7 +20,8 @@ userTools.findUser({username: 'admin'}).catch(() => {
         'Administrator',
         'admin@vue-blog.com',
         ['post', 'administrate', 'comment'],
-        'admin');
+        'admin'
+    );
 });
 
 // Create API router for express
@@ -52,7 +53,7 @@ api.use('/verify', verify);
 // Start listening
 api.use('/', graphqlHTTP({
     schema: schema,
-    graphiql: true
+    graphiql: !_productionMode
 }));
 
 // Export module

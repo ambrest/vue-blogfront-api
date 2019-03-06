@@ -30,7 +30,7 @@ const query = `
 const resolver = {
 
     Query: {
-        comment(_, args) {
+        async comment(_, args) {
 
             // Make sure all required arguments are present
             if (!args.apikey || !args.postid || !args.body) {
@@ -41,7 +41,7 @@ const resolver = {
             return comment.comment(args);
         },
 
-        removeComment(_, args) {
+        async removeComment(_, args) {
 
             // Make sure all required arguments are present
             if (!args.apikey || !args.postid || !args.id) {
@@ -52,7 +52,7 @@ const resolver = {
             return comment.removeComment(args);
         },
 
-        updateComment(_, args) {
+        async updateComment(_, args) {
 
             // Make sure all required arguments are present
             if (!args.apikey || !args.postid || !args.id || !args.body) {
@@ -63,11 +63,12 @@ const resolver = {
             return comment.updateComment(args);
         }
     },
+
     Comment: {
 
         // For simplification purposes, users are stored in comments as just their IDs.
         // When a query for a comment user is made, this function is called to resolve it.
-        user(obj) {
+        async user(obj) {
             return user.getUser({id: obj.author})
                 .then(userData => userData)
                 .catch(error => {

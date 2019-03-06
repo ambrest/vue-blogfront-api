@@ -1,5 +1,5 @@
 const errors = require('../../config/errors');
-const tests = require('../../config/regexTests');
+const tests = require('../../config/regexpValidations');
 
 // Middleware function for GraphQL to validate ALL incoming arguments
 // Simple regex tests are used for most, which can be changed in

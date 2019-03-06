@@ -13,15 +13,15 @@ const query = `
 // Resolver, this resolves GraphQL requests
 const resolver = {
     Query: {
-        author() {
+        async author() {
             return config.info.author;
         },
 
-        version() {
+        async version() {
             return config.info.version;
         },
 
-        blogTitle() {
+        async blogTitle() {
             return config.info.blogTitle;
         }
     }

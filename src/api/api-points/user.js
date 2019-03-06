@@ -39,7 +39,7 @@ const query = `
 const resolver = {
 
     Query: {
-        user(_, args) {
+        async user(_, args) {
 
             // Make sure all required arguments are present
             if (!args.username && !args.id && !args.apikey) {
@@ -50,19 +50,19 @@ const resolver = {
             return user.getUser(args);
         },
 
-        getAllUsers(_, args) {
+        async getAllUsers(_, args) {
 
             // Perform action and return promise
             return user.getAllUsers(args);
         },
 
-        register(_, args) {
+        async register(_, args) {
 
             // Perform action and return promise
             return user.registerUser(args);
         },
 
-        login(_, args) {
+        async login(_, args) {
 
             // Make sure all required arguments are present
             if ((!args.username && !args.password) && !args.apikey) {
@@ -73,19 +73,19 @@ const resolver = {
             return user.loginUser(args);
         },
 
-        updateUser(_, args) {
+        async updateUser(_, args) {
 
             // Perform action and return promise
             return user.updateUser(args);
         },
 
-        logout(_, args) {
+        async logout(_, args) {
 
             // Perform action and return promise
             return user.logout(args);
         },
 
-        recoverPassword(_, args) {
+        async recoverPassword(_, args) {
 
             // Perform action and return promise
             return user.recoverPassword(args);

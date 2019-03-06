@@ -59,7 +59,7 @@ module.exports = {
      * @param deactivated - OPTIONAL deactivate user
      * @returns {Promise} - the updated user
      */
-    updateUser({apikey, id, fullname, permissions, email, password, deactivated}) {
+    async updateUser({apikey, id, fullname, permissions, email, password, deactivated}) {
         // User to update
         let user;
 
@@ -116,7 +116,7 @@ module.exports = {
      * @param email - OPTIONAL gets user by their VERIFIED email address
      * @returns {Promise} - user that is searched
      */
-    findUser({username, id, apikey, email}) {
+    async findUser({username, id, apikey, email}) {
 
         // Use some sweet ES6 trickery to build a query with only given args
         const queryOptions = {
@@ -153,7 +153,7 @@ module.exports = {
      *                  is the user requested or is an admin.
      * @returns {Promise} - the requested user
      */
-    getUser({username, id, apikey}) {
+    async getUser({username, id, apikey}) {
 
         // Resolve user being searched
         return this.findUser({username, id}).then(user => {
@@ -192,7 +192,7 @@ module.exports = {
      * @param email - new user's email address
      * @returns {Promise} - the new user
      */
-    registerUser({username, password, fullname, email}) {
+    async  registerUser({username, password, fullname, email}) {
 
         // Check to see if the user already exists and throw error if so
         return this.findUser({username})
@@ -221,7 +221,7 @@ module.exports = {
      * @param apikey - OPTIONAL API key of the user to login
      * @returns {Promise} - the user
      */
-    loginUser({username, password, apikey}) {
+    async loginUser({username, password, apikey}) {
 
         // Resolve user by either username or API key
         return this.findUser(apikey ? ({apikey}) : ({username})).then(user => {
@@ -262,7 +262,7 @@ module.exports = {
      * @param apikey - API key of the admin calling
      * @returns {Promise} - an array of all users EXCEPT the calling user
      */
-    getAllUsers({apikey}) {
+    async getAllUsers({apikey}) {
 
         // Resolve calling user
         return this.findUser({apikey}).then(user => {
@@ -293,7 +293,7 @@ module.exports = {
      * @param apikey - API key of the user to logout
      * @returns {Promise} - boolean always true
      */
-    logout({apikey}) {
+    async logout({apikey}) {
 
         // Resolve calling user
         return this.findUser({apikey}).then(user => {
@@ -314,7 +314,7 @@ module.exports = {
      * Validates a user's email address with an API key
      * @param apikey - apikey sent to the user via email
      */
-    verifyUser(apikey) {
+    async verifyUser(apikey) {
 
         // Resolve user
         return this.findUser({apikey}).then(user => {
@@ -338,7 +338,7 @@ module.exports = {
      * Send user a password recovery email if their email address is verified
      * @param email - email of the user to send recovery to
      */
-    recoverPassword({email}) {
+    async recoverPassword({email}) {
 
         // Resolve user
         return this.findUser({email}).then(user => {
