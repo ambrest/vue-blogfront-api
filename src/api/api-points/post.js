@@ -9,10 +9,9 @@ const typeDef = `
         author: String,
         user: User,
         timestamp: Float,
-        
-        comments: [Comment],
-        
-        body: String
+        body: String,
+        tags: [String],
+        comments: [Comment]
     }
 `;
 
@@ -28,9 +27,9 @@ const typeDef = `
  * @type {string}
  */
 const query = `
-    post(apikey: String!, title: String!, body: String!): Post,
+    post(apikey: String!, title: String!, body: String!, tags: [String!]!): Post,
     removePost(apikey: String!, id: String!): Post,
-    updatePost(apikey: String!, id: String!, title: String, body: String): Post,
+    updatePost(apikey: String!, id: String!, title: String, body: String, tags: [String!]!): Post,
     getPost(id: String!): Post,
     getPostRange(timestart: Float!, timeend: Float!): [Post],
     getPostCountRange(start: Int!, end: Int!): [Post],

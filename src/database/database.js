@@ -11,6 +11,7 @@ const postModel = mongoose.model('Post', {
     author: String,
     timestamp: Number,
     body: String,
+    tags: [String],
 
     comments: [{
         author: String,
@@ -28,6 +29,7 @@ const userModel = mongoose.model('User', {
         key: String,
         expiry: Number
     }],
+
     id: String,
     fullname: String,
     permissions: [String],

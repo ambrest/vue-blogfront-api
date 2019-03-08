@@ -5,13 +5,14 @@ const errors = require('../../config/errors');
 
 // Class used to create new posts
 class Post {
-    constructor(title, author, body) {
+    constructor(title, author, body, tags) {
         this.id = auth.uniqueId();
         this.author = author;
         this.timestamp = Date.now();
 
         this.title = title;
         this.body = body;
+        this.tags = tags;
 
         this.comments = [];
 
@@ -20,7 +21,8 @@ class Post {
             title: this.title,
             author: this.author,
             timestamp: this.timestamp,
-            body: this.body
+            body: this.body,
+            tags: tags || []
         });
 
         post.save();
@@ -36,7 +38,7 @@ module.exports = {
      * @param body - OPTIONAL a new body for the post.
      * @returns {Promise} - the updated post
      */
-    async updatePost({apikey, id, title, body}) {
+    async updatePost({apikey, id, title, body, tags}) {
 
         // Post to update
         let post;
@@ -52,6 +54,7 @@ module.exports = {
             // Make sure that the user is either the author of the post or an admin.
             if (post.author === postingUser.id || postingUser.permissions.includes('administrate')) {
 
+                // TODO: Add validation
                 // Change the post title
                 if (title) {
                     post.title = title;
@@ -60,6 +63,10 @@ module.exports = {
                 // Change the post body
                 if (body) {
                     post.body = body;
+                }
+
+                if (tags) {
+                    post.tags = tags;
                 }
 
                 // Commit changes
@@ -79,14 +86,20 @@ module.exports = {
      * @param body - body of the new post
      * @returns {Promise} - the new post
      */
-    async writePost({apikey, title, body}) {
+    async writePost({apikey, title, body, tags}) {
 
         // Resolve user
         return user.findUser({apikey}).then(postingUser => {
 
             // Make sure that user has sufficient permissions to post
             if (postingUser.permissions.includes('post')) {
-                return new Post(title, postingUser.id, body);
+
+                // Validate tags
+                if (tags.every((v, i) => typeof v === 'string' && tags.lastIndexOf(v) === i && v)) {
+                    return new Post(title, postingUser.id, body, tags);
+                } else {
+                    throw errors.invalid.tags;
+                }
             } else {
                 throw errors.user.sufficientRights;
             }
