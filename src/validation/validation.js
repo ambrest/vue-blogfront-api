@@ -1,44 +1,37 @@
 const errors = require('../../config/errors');
-const tests = require('../../config/regexpValidations');
+
+const tests = {
+    username: v => /^[\w\d]{2,15}$/.test(v),
+    password: v => /^(.){4,20}$/.test(v),
+    apikey: v => /^[a-z\d]{8}-[a-z\d]{4}-[a-z\d]{4}-[a-z\d]{4}-[a-z\d]{12}$/.test(v),
+    id: v => /^_[a-z\d]{9}$/.test(v),
+    fullname: v => /^(.){1,20}/.test(v),
+    email: v => /^[\w\d-_]{1,20}@[\w\d-_]{1,20}\.[\w]{2,10}$/.test(v),
+    title: v => /^(.){1,200}$/.test(v),
+    body: v => v.length > 100,
+    tags: tags => tags.every((tag, i) => typeof tag === 'string' && tags.lastIndexOf(tag) === i && tag),
+    permissions: perms => !perms.length || perms.every(v => v === 'comment' || v === 'post' || v === 'administrate')
+};
 
 // Middleware function for GraphQL to validate ALL incoming arguments
 // Simple regex tests are used for most, which can be changed in
 // config.json
-
 module.exports = async (resolve, root, args, context, info) => {
-    if (args.username && !tests.username.test(args.username)) {
-        throw errors.invalid.username;
-    }
 
-    if (args.password && !tests.password.test(args.password)) {
-        throw errors.invalid.password;
-    }
+    for (const [key, value] of Object.entries(args)) {
+        const testFn = tests[key];
 
-    if (args.fullname && !tests.fullname.test(args.fullname)) {
-        throw errors.invalid.fullname;
-    }
+        if (testFn && !testFn(value)) {
+            const errorMsg = errors.invalid[key];
 
-    if (args.email && !tests.email.test(args.email)) {
-        throw errors.invalid.email;
-    }
+            if (errorMsg) {
+                throw errorMsg;
+            } else {
 
-    if (args.apikey && !tests.apikey.test(args.apikey)) {
-        throw errors.invalid.apikey;
-    }
-
-    if (args.title && !tests.title.test(args.title)) {
-        throw errors.invalid.title;
-    }
-
-    if (args.id && !tests.id.test(args.id)) {
-        throw errors.invalid.id;
-    }
-
-    if (args.permissions && args.permissions.length !== 0) {
-        if (!args.permissions.includes('comment')
-            && !args.permissions.includes('post')
-            && !args.permissions.includes('administrate')) {
-            throw errors.invalid.permissions;
+                /* eslint-disable no-console */
+                console.warn(`Undefined error message for ${key}`);
+                throw 'Unknown error.';
+            }
         }
     }
 

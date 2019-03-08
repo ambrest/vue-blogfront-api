@@ -93,13 +93,7 @@ module.exports = {
 
             // Make sure that user has sufficient permissions to post
             if (postingUser.permissions.includes('post')) {
-
-                // Validate tags
-                if (tags.every((v, i) => typeof v === 'string' && tags.lastIndexOf(v) === i && v)) {
-                    return new Post(title, postingUser.id, body, tags);
-                } else {
-                    throw errors.invalid.tags;
-                }
+                return new Post(title, postingUser.id, body, tags);
             } else {
                 throw errors.user.sufficientRights;
             }

@@ -8,7 +8,7 @@
         "email": "Please enter a valid email address.",
         "permissions": "Invalid permissions.",
         "title": "Please enter a title between 1 and 200 characters long.",
-        "body": "Your body is invalid.",
+        "body": "Your body is invalid or too short.",
         "tooManyArgs": "Too many arguments.",
         "tags": "Invalid tags or duplicates."
     },
