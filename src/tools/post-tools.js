@@ -228,34 +228,48 @@ module.exports = {
     /**
      * Get all posts made by a specific user
      * @param userid - the user that made the posts
+     * @param start - range start
+     * @param end - range end, 5 by default
      * @returns {Promise} - an array of posts
      */
-    async getPostsBy({userid}) {
+    async getPostsBy({userid, start = 0, end = 5}) {
 
         // Resolve all posts by the user with the above userid
-        return database.postModel.find({author: userid}).sort('-timestamp').exec().then(posts => {
-            if (posts) {
-                return posts;
-            } else {
-                throw errors.post.notFound;
-            }
-        });
+        return database.postModel.find({author: userid})
+            .sort('-timestamp')
+            .skip(start)
+            .limit(end)
+            .exec()
+            .then(posts => {
+                if (posts) {
+                    return posts;
+                } else {
+                    throw errors.post.notFound;
+                }
+            });
     },
 
     /**
      * Searchs all posts
      * @param query Search query
+     * @param start - range start
+     * @param end - range end, 5 by default
      * @returns {Promise<T | never>}
      */
-    async searchPosts({query}) {
+    async searchPosts({query, start = 0, end = 5}) {
 
         // Find all posts which match the query
-        return database.postModel.find({tags: query}).sort('-timestamp').exec().then(posts => {
-            if (posts) {
-                return posts;
-            } else {
-                throw errors.post.notFound;
-            }
-        });
+        return database.postModel.find({tags: query})
+            .sort('-timestamp')
+            .skip(start)
+            .limit(end)
+            .exec()
+            .then(posts => {
+                if (posts) {
+                    return posts;
+                } else {
+                    throw errors.post.notFound;
+                }
+            });
     }
 };

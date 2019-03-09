@@ -34,8 +34,8 @@ const query = `
     getPostRange(timestart: Float!, timeend: Float!): [Post],
     getPostCountRange(start: Int!, end: Int!): [Post],
     getPostCount(count: Int!): [Post],
-    getPostsBy(userid: String!): [Post],
-    searchPosts(query: String!): [Post],
+    getPostsBy(userid: String!, start: Int!, end: Int!): [Post],
+    searchPosts(query: String!, start: Int!, end: Int!): [Post],
     getAllPosts: [Post]
 `;
 
