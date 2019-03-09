@@ -259,7 +259,10 @@ module.exports = {
     async searchPosts({query, start = 0, end = 5}) {
 
         // Find all posts which match the query
-        return database.postModel.find({tags: query})
+        return database.postModel.find(
+            {$text: {$search: query}},
+            {score: {$meta: 'textScore'}})
+            .sort({score: {$meta: 'textScore'}})
             .sort('-timestamp')
             .skip(start)
             .limit(end)
