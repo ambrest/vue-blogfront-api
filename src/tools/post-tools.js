@@ -240,5 +240,22 @@ module.exports = {
                 throw errors.post.notFound;
             }
         });
+    },
+
+    /**
+     * Searchs all posts
+     * @param query Search query
+     * @returns {Promise<T | never>}
+     */
+    async searchPosts({query}) {
+
+        // Find all posts which match the query
+        return database.postModel.find({tags: query}).sort('-timestamp').exec().then(posts => {
+            if (posts) {
+                return posts;
+            } else {
+                throw errors.post.notFound;
+            }
+        });
     }
 };

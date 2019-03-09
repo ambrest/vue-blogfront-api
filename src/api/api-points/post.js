@@ -35,6 +35,7 @@ const query = `
     getPostCountRange(start: Int!, end: Int!): [Post],
     getPostCount(count: Int!): [Post],
     getPostsBy(userid: String!): [Post],
+    searchPosts(query: String!): [Post],
     getAllPosts: [Post]
 `;
 
@@ -45,6 +46,12 @@ const resolver = {
 
             // Perform action and return promise
             return post.writePost(args);
+        },
+
+        async searchPosts(_, args){
+
+            // Perform action and return promise
+            return post.searchPosts(args);
         },
 
         async getPost(_, args) {
