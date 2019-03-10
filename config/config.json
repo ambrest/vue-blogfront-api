@@ -7,15 +7,16 @@
     "server": {
         "port": 4000,
         "startingMessage": "Server started on port 4000...",
-        "domain": "localhost:3007",
-        "api": "localhost:4000",
+        "domain": "http://localhost:3007",
+        "api": "http://localhost:4000",
+        "maxClaps": 50,
         "emailVerification": false
     },
     "mail": {
         "service": "gmail",
         "auth": {
-            "user": "email",
-            "pass": "pass"
+            "user": "<EMAIL>",
+            "pass": "<PASSWORD>"
         }
     },
     "auth": {

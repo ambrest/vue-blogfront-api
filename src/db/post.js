@@ -1,7 +1,8 @@
-const user = require('./user');
-const database = require('./db');
-const auth = require('../auth');
 const errors = require('../../config/errors');
+const config = require('../../config/config');
+const user = require('./user');
+const database = require('./models');
+const auth = require('../auth');
 
 // Class used to create new posts
 class Post {
@@ -80,6 +81,42 @@ module.exports = {
     },
 
     /**
+     * Updates the claps of one post
+     * @param apikey - API key of the clapi'n user.
+     * @param newClaps - New claps
+     * @param postId - Post id
+     * @returns {Promise<void>}
+     */
+    async incrementClaps({apikey, newClaps, postId}) {
+        const usr = await user.findUser({apikey});
+        const post = await database.postModel.findOne({id: postId});
+
+        if (!post) {
+            throw errors.post.notFound;
+        }
+
+        post.claps = Array.isArray(post.claps) ? post.claps : [];
+        const existingClapObject = post.claps.find(v => v.user === usr.id);
+        const clapObject = existingClapObject ? existingClapObject : {user: usr.id, amount: 0};
+        clapObject.amount += newClaps;
+
+        if (clapObject.amount > config.server.maxClaps) {
+            clapObject.amount = config.server.maxClaps;
+        }
+
+        if (!existingClapObject) {
+            post.claps.push(clapObject);
+        }
+
+        await post.save();
+
+        return {
+            ...post,
+            claps: post.claps.reduce((acc, v) => acc + v.amount, 0)
+        };
+    },
+
+    /**
      * Creates a new post
      * @param apikey - API key of the posting user. Must have 'post' permission.
      * @param title - title of the new post
@@ -106,10 +143,24 @@ module.exports = {
      * @returns {Promise} - the post
      */
     async getPost({id}) {
+
         // Resolve post in the database
-        return database.postModel.findOne({id}).exec().then(post => {
-            if (post) {
-                return post;
+        return database.postModel.aggregate([
+            {$match: {id}},
+            {
+                $addFields: {
+                    claps: {
+                        $reduce: {
+                            input: '$claps',
+                            initialValue: 0,
+                            in: {$add: ['$$this.amount', '$$value']}
+                        }
+                    }
+                }
+            }
+        ]).exec().then(posts => {
+            if (posts.length) {
+                return posts[0];
             } else {
                 throw errors.post.notFound;
             }
@@ -117,6 +168,7 @@ module.exports = {
     },
 
     /**
+     * TODO: Remove
      * Get all posts on the server
      * @returns {Promise} - an array of posts
      */
@@ -133,6 +185,7 @@ module.exports = {
     },
 
     /**
+     * TODO: Remove
      * Get all posts in a specific time range
      * @param timestart - the start of the range
      * @param timeend - the end of the range
@@ -156,6 +209,7 @@ module.exports = {
     },
 
     /**
+     * TODO: Remove
      * Get a specific number of posts from the server. Grabs from newest to oldest
      * @param count - the number of posts to get
      * @returns {Promise} - an array of posts
@@ -211,18 +265,28 @@ module.exports = {
     async getPostCountRange({start, end}) {
 
         // Resolve post count
-        return database.postModel.find({})
-            .sort('-timestamp')
-            .skip(start)
-            .limit(end)
-            .exec()
-            .then(posts => {
-                if (posts) {
-                    return posts;
-                } else {
-                    throw errors.post.notFound;
+        return database.postModel.aggregate([
+            {$sort: {timestamp: -1}},
+            {$skip: start},
+            {$limit: end},
+            {
+                $addFields: {
+                    claps: {
+                        $reduce: {
+                            input: '$claps',
+                            initialValue: 0,
+                            in: {$add: ['$$this.amount', '$$value']}
+                        }
+                    }
                 }
-            });
+            }
+        ]).exec().then(posts => {
+            if (posts) {
+                return posts;
+            } else {
+                throw errors.post.notFound;
+            }
+        });
     },
 
     /**
@@ -235,18 +299,29 @@ module.exports = {
     async getPostsBy({userid, start = 0, end = 5}) {
 
         // Resolve all posts by the user with the above userid
-        return database.postModel.find({author: userid})
-            .sort('-timestamp')
-            .skip(start)
-            .limit(end)
-            .exec()
-            .then(posts => {
-                if (posts) {
-                    return posts;
-                } else {
-                    throw errors.post.notFound;
+        return database.postModel.aggregate([
+            {$match: {author: userid}},
+            {$sort: {timestamp: -1}},
+            {$skip: start},
+            {$limit: end},
+            {
+                $addFields: {
+                    claps: {
+                        $reduce: {
+                            input: '$claps',
+                            initialValue: 0,
+                            in: {$add: ['$$this.amount', '$$value']}
+                        }
+                    }
                 }
-            });
+            }
+        ]).exec().then(posts => {
+            if (posts) {
+                return posts;
+            } else {
+                throw errors.post.notFound;
+            }
+        });
     },
 
     /**
@@ -259,20 +334,28 @@ module.exports = {
     async searchPosts({query, start = 0, end = 5}) {
 
         // Find all posts which match the query
-        return database.postModel.find(
-            {$text: {$search: query}},
-            {score: {$meta: 'textScore'}})
-            .sort({score: {$meta: 'textScore'}})
-            .sort('-timestamp')
-            .skip(start)
-            .limit(end)
-            .exec()
-            .then(posts => {
-                if (posts) {
-                    return posts;
-                } else {
-                    throw errors.post.notFound;
+        return database.postModel.aggregate([
+            {$match: {$text: {$search: query}}},
+            {$sort: {score: {$meta: 'textScore'}}},
+            {$skip: start},
+            {$limit: end},
+            {
+                $addFields: {
+                    claps: {
+                        $reduce: {
+                            input: '$claps',
+                            initialValue: 0,
+                            in: {$add: ['$$this.amount', '$$value']}
+                        }
+                    }
                 }
-            });
+            }
+        ]).exec().then(posts => {
+            if (posts) {
+                return posts;
+            } else {
+                throw errors.post.notFound;
+            }
+        });
     }
 };

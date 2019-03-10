@@ -41,7 +41,7 @@ config.json - Contains all of the settings for the server.
         auth.js - Contains tools for generating API keys and unique IDs
 
     /database
-        db.js - Contains all code for interfacing with MongoDB
+        models.js - Contains all code for interfacing with MongoDB
 
     /tools
         comment.js - Implementation of the 'comment' api point

@@ -7,6 +7,7 @@ const typeDef = `
         id: String,
         title: String,
         author: String,
+        claps: Int,
         user: User,
         timestamp: Float,
         body: String,
@@ -36,7 +37,8 @@ const query = `
     getPostCount(count: Int!): [Post],
     getPostsBy(userid: String!, start: Int!, end: Int!): [Post],
     searchPosts(query: String!, start: Int!, end: Int!): [Post],
-    getAllPosts: [Post]
+    getAllPosts: [Post],
+    incrementClaps(apikey: String!, postId: String!, newClaps: Int!): Post
 `;
 
 const resolver = {
@@ -97,7 +99,15 @@ const resolver = {
         },
 
         async getPostsBy(_, args) {
+
+            // Perform action and return promise
             return post.getPostsBy(args);
+        },
+
+        async incrementClaps(_, args) {
+
+            // Perform action and return promise
+            return post.incrementClaps(args);
         }
     },
 
@@ -106,6 +116,7 @@ const resolver = {
         // For simplification purposes, users are stored in posts as just their IDs.
         // When a query for a comment user is made, this function is called to resolve it.
         user(obj) {
+
             // Perform action and return promise
             return user.getUser({id: obj.author});
         }

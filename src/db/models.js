@@ -1,6 +1,7 @@
+const config = require('../../config/config');
 const mongoose = require('mongoose');
 
-const url = process.argv.includes('--docker') ? 'mongodb://mongo:27017/blog' : 'mongodb://localhost/blog';
+const url = _productionMode ? 'mongodb://mongo:27017/blog' : 'mongodb://localhost/blog';
 
 mongoose.connect(url, {useNewUrlParser: true});
 
@@ -12,6 +13,15 @@ const postSchema = new mongoose.Schema({
     timestamp: Number,
     body: String,
     tags: [String],
+
+    claps: [{
+        user: String,
+        amount: {
+            type: Number,
+            max: config.server.maxClaps,
+            min: 0
+        }
+    }],
 
     comments: [{
         author: String,

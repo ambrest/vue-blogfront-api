@@ -1,4 +1,4 @@
-const database = require('./db');
+const database = require('./models');
 const auth = require('../auth');
 const bcrypt = require('bcrypt');
 const config = require('../../config/config');
