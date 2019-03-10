@@ -32,12 +32,9 @@ const query = `
     removePost(apikey: String!, id: String!): Post,
     updatePost(apikey: String!, id: String!, title: String, body: String, tags: [String!]!): Post,
     getPost(id: String!): Post,
-    getPostRange(timestart: Float!, timeend: Float!): [Post],
     getPostCountRange(start: Int!, end: Int!): [Post],
-    getPostCount(count: Int!): [Post],
     getPostsBy(userid: String!, start: Int!, end: Int!): [Post],
     searchPosts(query: String!, start: Int!, end: Int!): [Post],
-    getAllPosts: [Post],
     incrementClaps(apikey: String!, postId: String!, newClaps: Int!): Post
 `;
 
@@ -66,24 +63,6 @@ const resolver = {
 
             // Perform action and return promise
             return post.updatePost(args);
-        },
-
-        async getPostRange(_, args) {
-
-            // Perform action and return promise
-            return post.getPostRange(args);
-        },
-
-        async getPostCount(_, args) {
-
-            // Perform action and return promise
-            return post.getPostCount(args);
-        },
-
-        async getAllPosts() {
-
-            // Perform action and return promise
-            return post.getAllPosts();
         },
 
         async removePost(_, args) {

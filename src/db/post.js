@@ -167,64 +167,6 @@ module.exports = {
         });
     },
 
-    /**
-     * TODO: Remove
-     * Get all posts on the server
-     * @returns {Promise} - an array of posts
-     */
-    async getAllPosts() {
-
-        // Resolve all posts on the server
-        return database.postModel.find({}).sort('-timestamp').exec().then(postDocs => {
-            if (postDocs) {
-                return postDocs;
-            } else {
-                throw errors.post.notFound;
-            }
-        });
-    },
-
-    /**
-     * TODO: Remove
-     * Get all posts in a specific time range
-     * @param timestart - the start of the range
-     * @param timeend - the end of the range
-     * @returns {Promise} - an array of all posts in the given range
-     */
-    async getPostRange({timestart, timeend}) {
-
-        // Resolve all posts in given timerange from the database
-        return database.postModel.find({
-            timestamp: {
-                $gte: timestart,
-                $lte: timeend
-            }
-        }).sort('-timestamp').exec().then(postDocs => {
-            if (postDocs) {
-                return postDocs;
-            } else {
-                throw errors.post.notFound;
-            }
-        });
-    },
-
-    /**
-     * TODO: Remove
-     * Get a specific number of posts from the server. Grabs from newest to oldest
-     * @param count - the number of posts to get
-     * @returns {Promise} - an array of posts
-     */
-    async getPostCount({count}) {
-
-        // Resolve post count
-        return database.postModel.find({}).sort('-timestamp').limit(count).exec().then(posts => {
-            if (posts) {
-                return posts;
-            } else {
-                throw errors.post.notFound;
-            }
-        });
-    },
 
     /**
      * Removes a post from the server by ID

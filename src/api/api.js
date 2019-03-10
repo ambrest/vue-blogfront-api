@@ -7,10 +7,10 @@ const validation = require('../validation');
 const verify = require('./verify');
 
 // API Points
-const info = require('./api-points/info');
-const user = require('./api-points/user');
-const post = require('./api-points/post');
-const comment = require('./api-points/comment');
+const info = require('./queries/info');
+const user = require('./queries/user');
+const post = require('./queries/post');
+const comment = require('./queries/comment');
 
 const userTools = require('../db/user');
 
