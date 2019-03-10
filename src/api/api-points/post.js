@@ -1,5 +1,5 @@
-const post = require('../../tools/post-tools');
-const user = require('../../tools/user-tools');
+const post = require('../../db/post');
+const user = require('../../db/user');
 
 // Definition of the post class for GraphQL
 const typeDef = `
@@ -48,7 +48,7 @@ const resolver = {
             return post.writePost(args);
         },
 
-        async searchPosts(_, args){
+        async searchPosts(_, args) {
 
             // Perform action and return promise
             return post.searchPosts(args);

@@ -41,12 +41,12 @@ config.json - Contains all of the settings for the server.
         auth.js - Contains tools for generating API keys and unique IDs
 
     /database
-        database.js - Contains all code for interfacing with MongoDB
+        db.js - Contains all code for interfacing with MongoDB
 
     /tools
-        comment-tools.js - Implementation of the 'comment' api point
-        post-tools.js - Implementation of the 'post' api point
-        user-tools.js - Implementation of the 'user' api point
+        comment.js - Implementation of the 'comment' api point
+        post.js - Implementation of the 'post' api point
+        user.js - Implementation of the 'user' api point
 
     /validation
         validation.js - Middleware for validating all incoming data in GraphQL

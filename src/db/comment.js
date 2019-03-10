@@ -1,7 +1,7 @@
-const post = require('../tools/post-tools');
-const user = require('../tools/user-tools');
+const post = require('./post');
+const user = require('./user');
 const errors = require('../../config/errors');
-const auth = require('../auth/auth');
+const auth = require('../auth');
 
 // Class for constructing new comments
 class Comment {

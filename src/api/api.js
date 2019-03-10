@@ -3,7 +3,7 @@ const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const {makeExecutableSchema} = require('graphql-tools');
 const {applyMiddleware} = require('graphql-middleware');
-const validation = require('../validation/validation');
+const validation = require('../validation');
 const verify = require('./verify');
 
 // API Points
@@ -12,7 +12,7 @@ const user = require('./api-points/user');
 const post = require('./api-points/post');
 const comment = require('./api-points/comment');
 
-const userTools = require('../tools/user-tools');
+const userTools = require('../db/user');
 
 // Create an admin if there isn't one
 userTools.findUser({username: 'admin'}).catch(() => {

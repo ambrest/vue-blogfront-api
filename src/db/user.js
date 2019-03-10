@@ -1,5 +1,5 @@
-const database = require('../database/database');
-const auth = require('../auth/auth');
+const database = require('./db');
+const auth = require('../auth');
 const bcrypt = require('bcrypt');
 const config = require('../../config/config');
 const errors = require('../../config/errors');
@@ -192,7 +192,7 @@ module.exports = {
      * @param email - new user's email address
      * @returns {Promise} - the new user
      */
-    async  registerUser({username, password, fullname, email}) {
+    async registerUser({username, password, fullname, email}) {
 
         // Check to see if the user already exists and throw error if so
         return this.findUser({username})

@@ -1,5 +1,5 @@
 const express = require('express');
-const user = require('../tools/user-tools');
+const user = require('../db/user');
 const config = require('../../config/config');
 
 // Create API router for express

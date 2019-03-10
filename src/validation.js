@@ -1,4 +1,4 @@
-const errors = require('../../config/errors');
+const errors = require('../config/errors');
 
 const tests = {
     username: v => /^[\w\d]{2,15}$/.test(v),
@@ -6,9 +6,9 @@ const tests = {
     apikey: v => /^[a-z\d]{8}-[a-z\d]{4}-[a-z\d]{4}-[a-z\d]{4}-[a-z\d]{12}$/.test(v),
     id: v => /^_[a-z\d]{9}$/.test(v),
     fullname: v => /^(.){1,20}/.test(v),
-    email: v => /^[\w\d-_]{1,20}@[\w\d-_]{1,20}\.[\w]{2,10}$/.test(v),
+    email: v => /^[\w\d-_]{1,100}@[\w\d-_]{1,100}\.[\w]{2,10}$/.test(v),
     title: v => /^(.){1,200}$/.test(v),
-    body: v => v.length > 100,
+    body: v => v.length > 20,
     tags: tags => tags.every((tag, i) => typeof tag === 'string' && tags.lastIndexOf(tag) === i && tag),
     permissions: perms => !perms.length || perms.every(v => v === 'comment' || v === 'post' || v === 'administrate')
 };

@@ -1,4 +1,4 @@
-const user = require('../../tools/user-tools');
+const user = require('../../db/user');
 const errors = require('../../../config/errors');
 
 // Definition of the post class for GraphQL
