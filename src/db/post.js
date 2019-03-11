@@ -30,6 +30,49 @@ class Post {
     }
 }
 
+const aggregationPipes = {
+    ownClaps: userid => ([
+
+        {
+            $addFields: {
+                myClaps: {
+                    $slice: [{
+                        $filter: {
+                            input: '$claps',
+                            cond: {'$eq': ['$$this.user', userid]}
+                        }
+                    }, 1]
+                }
+            }
+        },
+        {
+            $unwind: {
+                path: '$myClaps',
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $addFields: {
+                myClaps: '$myClaps.amount'
+            }
+        }
+
+    ]),
+    totalClaps: [
+        {
+            $addFields: {
+                totalClaps: {
+                    $reduce: {
+                        input: '$claps',
+                        initialValue: 0,
+                        in: {$add: ['$$this.amount', '$$value']}
+                    }
+                }
+            }
+        }
+    ]
+};
+
 module.exports = {
 
     /**
@@ -152,26 +195,9 @@ module.exports = {
         // Resolve post in the database
         return database.postModel.aggregate([
             {$match: {id}},
-            {
-                $addFields: {
-                    totalClaps: {
-                        $reduce: {
-                            input: '$claps',
-                            initialValue: 0,
-                            in: {$add: ['$$this.amount', '$$value']}
-                        }
-                    }
-                }
-            },
-            ...(usr ? [
-                {$unwind: '$claps'},
-                {$match: {'claps.user': usr.id}},
-                {
-                    $addFields: {
-                        myClaps: '$claps.amount'
-                    }
-                }
-            ] : [])
+
+            ...aggregationPipes.totalClaps,
+            ...(usr ? aggregationPipes.ownClaps(usr.id) : [])
         ]).exec().then(posts => {
             if (posts.length) {
                 return posts[0];
@@ -226,26 +252,9 @@ module.exports = {
             {$sort: {timestamp: -1}},
             {$skip: start},
             {$limit: end},
-            {
-                $addFields: {
-                    totalClaps: {
-                        $reduce: {
-                            input: '$claps',
-                            initialValue: 0,
-                            in: {$add: ['$$this.amount', '$$value']}
-                        }
-                    }
-                }
-            },
-            ...(usr ? [
-                {$unwind: '$claps'},
-                {$match: {'claps.user': usr.id}},
-                {
-                    $addFields: {
-                        myClaps: '$claps.amount'
-                    }
-                }
-            ] : [])
+
+            ...aggregationPipes.totalClaps,
+            ...(usr ? aggregationPipes.ownClaps(usr.id) : [])
         ]).exec().then(posts => {
             if (posts) {
                 return posts;
@@ -272,26 +281,9 @@ module.exports = {
             {$sort: {timestamp: -1}},
             {$skip: start},
             {$limit: end},
-            {
-                $addFields: {
-                    totalClaps: {
-                        $reduce: {
-                            input: '$claps',
-                            initialValue: 0,
-                            in: {$add: ['$$this.amount', '$$value']}
-                        }
-                    }
-                }
-            },
-            ...(usr ? [
-                {$unwind: '$claps'},
-                {$match: {'claps.user': usr.id}},
-                {
-                    $addFields: {
-                        myClaps: '$claps.amount'
-                    }
-                }
-            ] : [])
+
+            ...aggregationPipes.totalClaps,
+            ...(usr ? aggregationPipes.ownClaps(usr.id) : [])
         ]).exec().then(posts => {
             if (posts) {
                 return posts;
@@ -318,26 +310,9 @@ module.exports = {
             {$sort: {score: {$meta: 'textScore'}}},
             {$skip: start},
             {$limit: end},
-            {
-                $addFields: {
-                    totalClaps: {
-                        $reduce: {
-                            input: '$claps',
-                            initialValue: 0,
-                            in: {$add: ['$$this.amount', '$$value']}
-                        }
-                    }
-                }
-            },
-            ...(usr ? [
-                {$unwind: '$claps'},
-                {$match: {'claps.user': usr.id}},
-                {
-                    $addFields: {
-                        myClaps: '$claps.amount'
-                    }
-                }
-            ] : [])
+
+            ...aggregationPipes.totalClaps,
+            ...(usr ? aggregationPipes.ownClaps(usr.id) : [])
         ]).exec().then(posts => {
             if (posts) {
                 return posts;
