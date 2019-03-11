@@ -7,7 +7,8 @@ const typeDef = `
         id: String,
         title: String,
         author: String,
-        claps: Int,
+        totalClaps: Int,
+        myClaps: Int,
         user: User,
         timestamp: Float,
         body: String,
@@ -31,10 +32,10 @@ const query = `
     post(apikey: String!, title: String!, body: String!, tags: [String!]!): Post,
     removePost(apikey: String!, id: String!): Post,
     updatePost(apikey: String!, id: String!, title: String, body: String, tags: [String!]!): Post,
-    getPost(id: String!): Post,
-    getPostCountRange(start: Int!, end: Int!): [Post],
-    getPostsBy(userid: String!, start: Int!, end: Int!): [Post],
-    searchPosts(query: String!, start: Int!, end: Int!): [Post],
+    getPost(apikey: String, id: String!): Post,
+    getPostCountRange(apikey: String, start: Int!, end: Int!): [Post],
+    getPostsBy(apikey: String, userid: String!, start: Int!, end: Int!): [Post],
+    searchPosts(apikey: String, query: String!, start: Int!, end: Int!): [Post],
     incrementClaps(apikey: String!, postId: String!, newClaps: Int!): Post
 `;
 

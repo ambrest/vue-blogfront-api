@@ -31,12 +31,14 @@ class Post {
 }
 
 module.exports = {
+
     /**
      * Updates a given post
      * @param apikey - API key of the user updating the post. Must either be the author or an admin.
      * @param id - ID of the post to be updated.
-     * @param title - OPTIONAL a new title for the post.
-     * @param body - OPTIONAL a new body for the post.
+     * @param title - Optional a new title for the post.
+     * @param body - Optional a new body for the post.
+     * @param tags - Optional tags
      * @returns {Promise} - the updated post
      */
     async updatePost({apikey, id, title, body, tags}) {
@@ -45,7 +47,7 @@ module.exports = {
         let post;
 
         // Resolve post
-        return this.getPost({id}).then(resolvedPost => {
+        return database.postModel.findOne({id}).then(resolvedPost => {
             post = resolvedPost;
 
             // Resolve the author
@@ -112,7 +114,8 @@ module.exports = {
 
         return {
             ...post,
-            claps: post.claps.reduce((acc, v) => acc + v.amount, 0)
+            myClaps: clapObject.amount,
+            totalClaps: post.claps.reduce((acc, v) => acc + v.amount, 0)
         };
     },
 
@@ -139,17 +142,19 @@ module.exports = {
 
     /**
      * Get a post from its ID
+     * @param apikey - Optional apikey to get more informations
      * @param id - ID of the post
      * @returns {Promise} - the post
      */
-    async getPost({id}) {
+    async getPost({apikey = null, id}) {
+        const usr = apikey && await user.findUser({apikey});
 
         // Resolve post in the database
         return database.postModel.aggregate([
             {$match: {id}},
             {
                 $addFields: {
-                    claps: {
+                    totalClaps: {
                         $reduce: {
                             input: '$claps',
                             initialValue: 0,
@@ -157,7 +162,16 @@ module.exports = {
                         }
                     }
                 }
-            }
+            },
+            ...(usr ? [
+                {$unwind: '$claps'},
+                {$match: {'claps.user': usr.id}},
+                {
+                    $addFields: {
+                        myClaps: '$claps.amount'
+                    }
+                }
+            ] : [])
         ]).exec().then(posts => {
             if (posts.length) {
                 return posts[0];
@@ -166,7 +180,6 @@ module.exports = {
             }
         });
     },
-
 
     /**
      * Removes a post from the server by ID
@@ -200,11 +213,13 @@ module.exports = {
 
     /**
      * Get all posts in a certain number range
+     * @param apikey - Optional apikey to get more informations
      * @param start - most recent post, *1* is the most recent!
      * @param end - oldest post, INCLUSIVE
      * @returns {Promise} - an array of posts
      */
-    async getPostCountRange({start, end}) {
+    async getPostCountRange({apikey = null, start, end}) {
+        const usr = apikey && await user.findUser({apikey});
 
         // Resolve post count
         return database.postModel.aggregate([
@@ -213,7 +228,7 @@ module.exports = {
             {$limit: end},
             {
                 $addFields: {
-                    claps: {
+                    totalClaps: {
                         $reduce: {
                             input: '$claps',
                             initialValue: 0,
@@ -221,7 +236,16 @@ module.exports = {
                         }
                     }
                 }
-            }
+            },
+            ...(usr ? [
+                {$unwind: '$claps'},
+                {$match: {'claps.user': usr.id}},
+                {
+                    $addFields: {
+                        myClaps: '$claps.amount'
+                    }
+                }
+            ] : [])
         ]).exec().then(posts => {
             if (posts) {
                 return posts;
@@ -233,12 +257,14 @@ module.exports = {
 
     /**
      * Get all posts made by a specific user
+     * @param apikey - Optional apikey to get more informations
      * @param userid - the user that made the posts
      * @param start - range start
      * @param end - range end, 5 by default
      * @returns {Promise} - an array of posts
      */
-    async getPostsBy({userid, start = 0, end = 5}) {
+    async getPostsBy({apikey = null, userid, start = 0, end = 5}) {
+        const usr = apikey && await user.findUser({apikey});
 
         // Resolve all posts by the user with the above userid
         return database.postModel.aggregate([
@@ -248,7 +274,7 @@ module.exports = {
             {$limit: end},
             {
                 $addFields: {
-                    claps: {
+                    totalClaps: {
                         $reduce: {
                             input: '$claps',
                             initialValue: 0,
@@ -256,7 +282,16 @@ module.exports = {
                         }
                     }
                 }
-            }
+            },
+            ...(usr ? [
+                {$unwind: '$claps'},
+                {$match: {'claps.user': usr.id}},
+                {
+                    $addFields: {
+                        myClaps: '$claps.amount'
+                    }
+                }
+            ] : [])
         ]).exec().then(posts => {
             if (posts) {
                 return posts;
@@ -268,12 +303,14 @@ module.exports = {
 
     /**
      * Searchs all posts
+     * @param apikey - Optional apikey to get more informations
      * @param query Search query
      * @param start - range start
      * @param end - range end, 5 by default
      * @returns {Promise<T | never>}
      */
-    async searchPosts({query, start = 0, end = 5}) {
+    async searchPosts({apikey = null, query, start = 0, end = 5}) {
+        const usr = apikey && await user.findUser({apikey});
 
         // Find all posts which match the query
         return database.postModel.aggregate([
@@ -283,7 +320,7 @@ module.exports = {
             {$limit: end},
             {
                 $addFields: {
-                    claps: {
+                    totalClaps: {
                         $reduce: {
                             input: '$claps',
                             initialValue: 0,
@@ -291,7 +328,16 @@ module.exports = {
                         }
                     }
                 }
-            }
+            },
+            ...(usr ? [
+                {$unwind: '$claps'},
+                {$match: {'claps.user': usr.id}},
+                {
+                    $addFields: {
+                        myClaps: '$claps.amount'
+                    }
+                }
+            ] : [])
         ]).exec().then(posts => {
             if (posts) {
                 return posts;
