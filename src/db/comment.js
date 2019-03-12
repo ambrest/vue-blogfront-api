@@ -34,7 +34,7 @@ module.exports = {
 
         // Make sure that the user has sufficient privileges to create a comment
         if (usr.permissions.includes('comment')) {
-            const newComment = new Comment(usr.id, body);
+            const newComment = new Comment(usr.id, body.replace(/^[\r\n ]+|[\r\n ]+$/g, ''));
 
             // Add the new comment to the post and save the post
             post.comments.push(newComment);
