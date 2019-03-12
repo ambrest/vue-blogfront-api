@@ -5,7 +5,7 @@
     "main": "/src/app.js",
     "scripts": {
         "dev": "nodemon ./src/app.js",
-        "launch": "node ./src/app.js",
+        "launch": "pm2 start ecosystem.json",
         "launch-docker": "node ./src/app.js --docker",
         "lint": "eslint ./src"
     },
@@ -28,6 +28,7 @@
         "uuid": "^3.3.2"
     },
     "devDependencies": {
-        "eslint": "^5.10.0"
+        "eslint": "^5.10.0",
+        "pm2": "^3.4.0"
     }
 }

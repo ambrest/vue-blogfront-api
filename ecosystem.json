@@ -1,0 +1,12 @@
+{
+    "apps": [
+        {
+            "name": "vue-blogfront-server",
+            "max_memory_restart": "1G",
+            "instances": "4",
+            "exec_mode": "cluster",
+            "script": "./src/app.js",
+            "log_date_format": "YYYY-MM-DD HH:mm:ss"
+        }
+    ]
+}
