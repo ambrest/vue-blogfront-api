@@ -2,6 +2,7 @@ const post = require('./post');
 const user = require('./user');
 const errors = require('../../config/errors');
 const auth = require('../auth');
+const {postModel} = require('../db/models');
 
 // Class for constructing new comments
 class Comment {
@@ -23,30 +24,26 @@ module.exports = {
      * @returns {Promise} - the comment
      */
     async comment({apikey, postid, body}) {
-        // Post to add the comment to
-        let thisPost;
 
-        // Resolve the post
-        return post.getPost({id: postid}).then(resolvedPost => {
-            thisPost = resolvedPost;
+        // Resolve the post and user
+        const post = await postModel.findOne({id: postid}).exec();
+        const usr = await user.findUser({apikey});
 
-            // Get the user that is commenting
-            return user.findUser({apikey});
-        }).then(commentingUser => {
+        if (!usr) throw errors.invalid.apikey;
+        if (!post) throw errors.post.notFound;
 
-            // Make sure that the user has sufficient privileges to create a comment
-            if (commentingUser.permissions.includes('comment')) {
-                const newComment = new Comment(commentingUser.id, body);
+        // Make sure that the user has sufficient privileges to create a comment
+        if (usr.permissions.includes('comment')) {
+            const newComment = new Comment(usr.id, body);
 
-                // Add the new comment to the post and save the post
-                thisPost.comments.push(newComment);
-                thisPost.save();
+            // Add the new comment to the post and save the post
+            post.comments.push(newComment);
+            await post.save();
 
-                return newComment;
-            } else {
-                throw errors.user.sufficientRights;
-            }
-        });
+            return newComment;
+        } else {
+            throw errors.user.sufficientRights;
+        }
     },
 
     /**
@@ -57,40 +54,34 @@ module.exports = {
      * @returns {Promise} - the comment
      */
     async removeComment({apikey, postid, id}) {
-        // Post to remove comment from
-        let thisPost;
 
-        // Resolve the post
-        return post.getPost({id: postid}).then(resolvedUser => {
-            thisPost = resolvedUser;
+        // Resolve the post and user
+        const post = await postModel.findOne({id: postid}).exec();
+        const usr = await user.findUser({apikey});
 
-            // Get the user removing the comment
-            return user.findUser({apikey});
-        }).then(commentingUser => {
+        if (!usr) throw errors.invalid.apikey;
+        if (!post) throw errors.post.notFound;
 
-            // Find the comment in the post
-            const commentIndex = thisPost.comments.findIndex(com => com.id === id);
-            const comment = thisPost.comments[commentIndex];
+        // Find the comment in the post
+        const commentIndex = post.comments.findIndex(com => com.id === id);
+        const comment = post.comments[commentIndex];
 
-            // Make sure that the comment exists
-            if (commentIndex !== -1) {
+        // Make sure that the comment exists
+        if (~commentIndex) {
 
-                // Make sure that the user removing the comment is either its author or an administrator
-                if (commentingUser.id === comment.author || commentingUser.permissions.includes('administrate')) {
+            // Make sure that the user removing the comment is either its author or an administrator
+            if (usr.id === comment.author || usr.permissions.includes('administrate')) {
 
-                    // Remove the comment
-                    thisPost.comments.splice(commentIndex, 1);
-
-                    thisPost.save();
-
-                    return comment;
-                } else {
-                    throw errors.user.sufficientRights;
-                }
+                // Remove the comment
+                post.comments.splice(commentIndex, 1);
+                post.save();
+                return comment;
             } else {
-                throw errors.comment.notFound;
+                throw errors.user.sufficientRights;
             }
-        });
+        } else {
+            throw errors.comment.notFound;
+        }
     },
 
     /**
@@ -103,37 +94,31 @@ module.exports = {
      */
     async updateComment({apikey, postid, id, body}) {
 
-        // Post to update
-        let thisPost;
+        // Resolve the post and user
+        const post = await postModel.findOne({id: postid}).exec();
+        const usr = await user.findUser({apikey});
 
-        // Resolve post
-        return post.getPost({id: postid}).then(resolvedPost => {
-            thisPost = resolvedPost;
+        if (!usr) throw errors.invalid.apikey;
+        if (!post) throw errors.post.notFound;
 
-            // Resolve the author
-            return user.findUser({apikey});
-        }).then(commentingUser => {
+        // Find the comment in the post
+        const comment = post.comments.find(com => com.id === id);
 
-            // Find the comment in the post
-            const comment = thisPost.comments.find(com => com.id === id);
+        // Make sure that the comment exists
+        if (comment) {
 
-            // Make sure that the comment exists
-            if (comment) {
+            // Make sure that the user removing the comment is either its author or an administrator
+            if (usr.id === comment.author || usr.permissions.includes('administrate')) {
+                comment.body = body;
 
-                // Make sure that the user removing the comment is either its author or an administrator
-                if (commentingUser.id === comment.author || commentingUser.permissions.includes('administrate')) {
-
-                    comment.body = body;
-
-                    thisPost.save();
-
-                    return comment;
-                } else {
-                    throw errors.user.sufficientRights;
-                }
+                // Save post
+                post.save();
+                return comment;
             } else {
                 throw errors.user.sufficientRights;
             }
-        });
+        } else {
+            throw errors.user.sufficientRights;
+        }
     }
 };

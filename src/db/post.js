@@ -1,7 +1,7 @@
 const errors = require('../../config/errors');
 const config = require('../../config/config');
+const {postModel} = require('./models');
 const user = require('./user');
-const database = require('./models');
 const auth = require('../auth');
 
 // Class used to create new posts
@@ -17,7 +17,7 @@ class Post {
 
         this.comments = [];
 
-        const post = new database.postModel({
+        const post = new postModel({
             id: this.id,
             title: this.title,
             author: this.author,
@@ -90,7 +90,7 @@ module.exports = {
         let post;
 
         // Resolve post
-        return database.postModel.findOne({id}).then(resolvedPost => {
+        return postModel.findOne({id}).then(resolvedPost => {
             post = resolvedPost;
 
             // Resolve the author
@@ -134,7 +134,7 @@ module.exports = {
      */
     async incrementClaps({apikey, newClaps, postId}) {
         const usr = await user.findUser({apikey});
-        const post = await database.postModel.findOne({id: postId});
+        const post = await postModel.findOne({id: postId});
 
         if (!post) {
             throw errors.post.notFound;
@@ -167,6 +167,7 @@ module.exports = {
      * @param apikey - API key of the posting user. Must have 'post' permission.
      * @param title - title of the new post
      * @param body - body of the new post
+     * @param tags - Optional tags
      * @returns {Promise} - the new post
      */
     async writePost({apikey, title, body, tags}) {
@@ -193,7 +194,7 @@ module.exports = {
         const usr = apikey && await user.findUser({apikey});
 
         // Resolve post in the database
-        return database.postModel.aggregate([
+        return postModel.aggregate([
             {$match: {id}},
 
             ...aggregationPipes.totalClaps,
@@ -214,27 +215,20 @@ module.exports = {
      * @returns {Promise} - the removed post
      */
     async removePost({apikey, id}) {
+        const post = await postModel.findOne({id}).exec();
+        const usr = await user.findUser({apikey});
 
-        // Post to remove
-        let removingPost;
+        if (!usr) throw errors.invalid.apikey;
+        if (!post) throw errors.post.notFound;
 
-        // Resolve post by ID
-        this.getPost({id}).then(post => {
-            removingPost = post;
+        // Check that user has sufficient rights to remove the post
+        if (post.author === usr.id || usr.permissions.includes('administrate')) {
 
-            // Resolve user removing post
-            return user.findUser({apikey});
-        }).then(removingUser => {
-
-            // Check that user has sufficient rights to remove the post
-            if (removingPost.author === removingUser.id || removingUser.permissions.includes('administrate')) {
-
-                // Delete the post from the database
-                return database.postModel.findOneAndDelete({id}).exec();
-            } else {
-                throw errors.user.sufficientRights;
-            }
-        });
+            // Delete the post from the database
+            return postModel.findOneAndDelete({id}).exec();
+        } else {
+            throw errors.user.sufficientRights;
+        }
     },
 
     /**
@@ -248,7 +242,7 @@ module.exports = {
         const usr = apikey && await user.findUser({apikey});
 
         // Resolve post count
-        return database.postModel.aggregate([
+        return postModel.aggregate([
             {$sort: {timestamp: -1}},
             {$skip: start},
             {$limit: end},
@@ -276,7 +270,7 @@ module.exports = {
         const usr = apikey && await user.findUser({apikey});
 
         // Resolve all posts by the user with the above userid
-        return database.postModel.aggregate([
+        return postModel.aggregate([
             {$match: {author: userid}},
             {$sort: {timestamp: -1}},
             {$skip: start},
@@ -305,7 +299,7 @@ module.exports = {
         const usr = apikey && await user.findUser({apikey});
 
         // Find all posts which match the query
-        return database.postModel.aggregate([
+        return postModel.aggregate([
             {$match: {$text: {$search: query}}},
             {$sort: {score: {$meta: 'textScore'}}},
             {$skip: start},

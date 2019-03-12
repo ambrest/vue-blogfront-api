@@ -1,4 +1,4 @@
-const database = require('./models');
+const {userModel} = require('./models');
 const auth = require('../auth');
 const bcrypt = require('bcrypt');
 const config = require('../../config/config');
@@ -28,7 +28,7 @@ class User {
             this.deactivated = false;
         }
 
-        const userFile = new database.userModel({
+        const userFile = new userModel({
             username: this.username,
             apikeys: this.apikeys,
             id: this.id,
@@ -136,7 +136,7 @@ module.exports = {
         };
 
         // Resolve user
-        return database.userModel.findOne(queryOptions).exec().then(user => {
+        return userModel.findOne(queryOptions).exec().then(user => {
             if (user) {
                 return user;
             } else {
@@ -271,7 +271,7 @@ module.exports = {
             if (user.permissions.includes('administrate')) {
 
                 // Resolve all users
-                return database.userModel.find({}).exec().then(userDocs => {
+                return userModel.find({}).exec().then(userDocs => {
                     if (userDocs) {
                         return userDocs.filter(doc => {
                             delete doc.apikeys;
