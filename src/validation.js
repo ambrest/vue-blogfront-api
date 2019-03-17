@@ -9,13 +9,12 @@ const tests = {
     email: v => /^[\w\d-_]{1,100}@[\w\d-_]{1,100}\.[\w]{2,10}$/.test(v),
     title: v => /^(.){1,200}$/.test(v),
     body: v => v.trim().length,
+    about: v => v.length < 200,
     tags: tags => tags.every((tag, i) => typeof tag === 'string' && tags.lastIndexOf(tag) === i && tag),
     permissions: perms => !perms.length || perms.every(v => v === 'comment' || v === 'post' || v === 'administrate')
 };
 
-// Middleware function for GraphQL to validate ALL incoming arguments
-// Simple regex tests are used for most, which can be changed in
-// config.json
+// Middleware function for GraphQL to validate incoming arguments
 module.exports = async (resolve, root, args, context, info) => {
 
     for (const [key, value] of Object.entries(args)) {

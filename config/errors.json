@@ -10,7 +10,8 @@
         "title": "Please enter a title between 1 and 200 characters long.",
         "body": "Your text is invalid or too short.",
         "tooManyArgs": "Too many arguments.",
-        "tags": "Invalid tags or duplicates."
+        "tags": "Invalid tags or duplicates.",
+        "about": "Text must be under 100 characters."
     },
     "missing": {
         "all": "You must provide arguments.",

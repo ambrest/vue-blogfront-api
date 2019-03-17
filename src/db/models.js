@@ -50,6 +50,7 @@ const postModel = mongoose.model('Post', postSchema);
 // MongoDB model for users
 const userModel = mongoose.model('User', {
     username: String,
+    profilePicture: String,
     apikeys: [{
         key: String,
         expiry: Number

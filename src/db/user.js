@@ -57,9 +57,11 @@ module.exports = {
      * @param email - OPTIONAL new email
      * @param password - OPTIONAL new password (will automatically be hashed)
      * @param deactivated - OPTIONAL deactivate user
+     * @param about - OPTIONAL about text
+     * @param profilePicture - OPTIONAL base64 encoded profile picture
      * @returns {Promise} - the updated user
      */
-    async updateUser({apikey, id, fullname, permissions, email, password, deactivated, about}) {
+    async updateUser({apikey, id, fullname, permissions, email, password, deactivated, about, profilePicture}) {
         // User to update
         let user;
 
@@ -102,6 +104,11 @@ module.exports = {
                 // Update about
                 if (about) {
                     user.about = about;
+                }
+
+                // Update about
+                if (profilePicture) {
+                    user.profilePicture = profilePicture;
                 }
 
                 // Commit changes
