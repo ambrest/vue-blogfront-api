@@ -58,8 +58,11 @@ const userModel = mongoose.model('User', {
     id: String,
     fullname: String,
     permissions: [String],
+    about: {
+        type: String,
+        default: 'Apparently, this user prefers to keep an air of mystery about them.'
+    },
     email: String,
-
     hash: String,
 
     deactivated: Boolean,

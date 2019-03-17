@@ -8,7 +8,7 @@ const tests = {
     fullname: v => /^(.){1,20}/.test(v),
     email: v => /^[\w\d-_]{1,100}@[\w\d-_]{1,100}\.[\w]{2,10}$/.test(v),
     title: v => /^(.){1,200}$/.test(v),
-    body: v => v.length > 20,
+    body: v => v.trim().length,
     tags: tags => tags.every((tag, i) => typeof tag === 'string' && tags.lastIndexOf(tag) === i && tag),
     permissions: perms => !perms.length || perms.every(v => v === 'comment' || v === 'post' || v === 'administrate')
 };

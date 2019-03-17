@@ -59,7 +59,7 @@ module.exports = {
      * @param deactivated - OPTIONAL deactivate user
      * @returns {Promise} - the updated user
      */
-    async updateUser({apikey, id, fullname, permissions, email, password, deactivated}) {
+    async updateUser({apikey, id, fullname, permissions, email, password, deactivated, about}) {
         // User to update
         let user;
 
@@ -97,6 +97,11 @@ module.exports = {
                 // Change password
                 if (password) {
                     user.hash = bcrypt.hashSync(password, config.auth.saltRounds);
+                }
+
+                // Update about
+                if (about) {
+                    user.about = about;
                 }
 
                 // Commit changes

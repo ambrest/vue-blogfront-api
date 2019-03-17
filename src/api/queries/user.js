@@ -10,7 +10,7 @@ const typeDef = `
         fullname: String,
         permissions: [String],
         email: String,
-        
+        about: String,
         deactivated: Boolean
     }
 `;
@@ -29,7 +29,7 @@ const typeDef = `
 const query = `
     user(username: String, id: String, apikey: String): User,
     logout(apikey: String!): Boolean,
-    updateUser(apikey: String!, id: String!, permissions: [String], password: String, fullname: String, email: String, deactivated: Boolean): User,
+    updateUser(apikey: String!, id: String!, permissions: [String], password: String, fullname: String, email: String, deactivated: Boolean, about: String): User,
     getAllUsers(apikey: String!): [User],
     register(username: String!, password: String!, fullname: String!, email: String!): User,
     login(username: String, password: String, apikey: String): User,
