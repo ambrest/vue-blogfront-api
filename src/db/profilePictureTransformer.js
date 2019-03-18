@@ -4,6 +4,11 @@ const PngQuant = require('pngquant');
 
 module.exports = base64dec => new Promise(async (resolve, reject) => {
 
+    // Restrict size
+    if (base64dec.length > 10000000) {
+        reject('Image too big. Try a smaller one.');
+    }
+
     // Remove meta data
     const metaDataEnd = base64dec.indexOf(',') + 1;
     const base64part = metaDataEnd ? base64dec.substring(metaDataEnd) : base64dec;
@@ -14,7 +19,7 @@ module.exports = base64dec => new Promise(async (resolve, reject) => {
         const buffer = await sharp(Buffer.from(base64part, 'base64'))
             .resize(240, 240, {fit: 'cover'})
             .png({force: true})
-            .toBuffer();
+            .toBuffer().catch(() => reject('Can\'t process image. Try another one.'));
 
         if (buffer) {
 

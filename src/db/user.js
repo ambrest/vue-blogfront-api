@@ -93,7 +93,7 @@ module.exports = {
                 }
 
                 // Change deactivated. Here, typeof must be used as deactivated is a boolean itself.
-                if (typeof (deactivated) === 'boolean') {
+                if (typeof deactivated === 'boolean') {
                     user.deactivated = deactivated;
                 }
 
@@ -103,7 +103,7 @@ module.exports = {
                 }
 
                 // Update about
-                if (about) {
+                if (about !== undefined) {
                     user.about = about;
                 }
 
