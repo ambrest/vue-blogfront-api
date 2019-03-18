@@ -1,4 +1,5 @@
 const {userModel} = require('./models');
+const profilePictureTransformer = require('./profilePictureTransformer');
 const auth = require('../auth');
 const bcrypt = require('bcrypt');
 const config = require('../../config/config');
@@ -71,7 +72,7 @@ module.exports = {
 
             // Resolve calling user
             return this.findUser({apikey});
-        }).then(updatingUser => {
+        }).then(async updatingUser => {
 
             // Make sure that the calling user is either the user being updated or an admin
             if (user.id === updatingUser.id || updatingUser.permissions.includes('administrate')) {
@@ -108,7 +109,7 @@ module.exports = {
 
                 // Update about
                 if (profilePicture) {
-                    user.profilePicture = profilePicture;
+                    user.profilePicture = await profilePictureTransformer(profilePicture);
                 }
 
                 // Commit changes

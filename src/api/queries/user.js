@@ -5,11 +5,11 @@ const errors = require('../../../config/errors');
 const typeDef = `
     type User {
         username: String,
+        profilePicture: String,
         apikey: String,
         id: String,
         fullname: String,
         permissions: [String],
-        profilePicture: String,
         email: String,
         about: String,
         deactivated: Boolean

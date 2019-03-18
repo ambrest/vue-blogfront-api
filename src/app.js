@@ -1,13 +1,13 @@
 global._productionMode = process.argv.includes('--docker');
 
-const express = require('express');
-const api = require('./api/api');
-const verify = require('./api/verify');
-const cors = require('cors');
-const compression = require('compression');
-const config = require('../config/config');
 const history = require('connect-history-api-fallback');
 const bodyParser = require('body-parser');
+const compression = require('compression');
+const express = require('express');
+const cors = require('cors');
+const api = require('./api/api');
+const verify = require('./api/verify');
+const config = require('../config/config');
 
 // Create app
 const app = express();
@@ -27,7 +27,7 @@ app.use(cors());
 // Email Verification
 app.use('/verify', verify);
 
-// GraphQL API Module
+// GraphQL API Module and cdn endpoint
 app.use('/api', api);
 
 // Serve static

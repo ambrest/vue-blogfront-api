@@ -1,4 +1,3 @@
-const post = require('./post');
 const user = require('./user');
 const errors = require('../../config/errors');
 const auth = require('../auth');
