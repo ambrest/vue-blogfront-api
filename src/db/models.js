@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 
 const url = _productionMode ? 'mongodb://mongo:27017/blog' : 'mongodb://localhost/blog';
 
+mongoose.set('useCreateIndex', true);
 mongoose.connect(url, {useNewUrlParser: true});
 
 //  MongoDB model for posts
