@@ -25,7 +25,8 @@
         "wrongPassword": "The password you have entered was incorrect, please try again."
     },
     "post": {
-        "notFound": "Post was not found."
+        "notFound": "Post was not found.",
+        "titleAlreadyExists": "A post with exactly this title already exists."
     },
     "comment": {
         "notFound": "Comment was not found."

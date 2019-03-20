@@ -172,6 +172,14 @@ module.exports = {
      */
     async writePost({apikey, title, body, tags}) {
 
+        // Normalize title because of UTF-8 / 16 support
+        title = title.normalize();
+
+        // Check if there is already a post with this title
+        if (await postModel.findOne({title})) {
+            throw errors.post.titleAlreadyExists;
+        }
+
         // Resolve user
         return user.findUser({apikey}).then(postingUser => {
 
