@@ -35,6 +35,7 @@ const query = `
     getPost(apikey: String, id: String!): Post,
     getPostCountRange(apikey: String, start: Int!, end: Int!): [Post],
     getPostsBy(apikey: String, userid: String!, start: Int!, end: Int!): [Post],
+    getPostsWhereClapped(apikey: String, userid: String!, start: Int!, end: Int!): [Post],
     searchPosts(apikey: String, query: String!, start: Int!, end: Int!): [Post],
     incrementClaps(apikey: String!, postId: String!, newClaps: Int!): Post
 `;
@@ -88,6 +89,12 @@ const resolver = {
 
             // Perform action and return promise
             return post.incrementClaps(args);
+        },
+
+        async getPostsWhereClapped(_, args){
+
+            // Perform action and return promise
+            return post.getPostsWhereClapped(args);
         }
     },
 

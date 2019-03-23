@@ -322,5 +322,25 @@ module.exports = {
                 throw errors.post.notFound;
             }
         });
+    },
+
+    async getPostsWhereClapped({apikey = null, userid, start = 0, end = 5}) {
+        const usr = apikey && await user.findUser({apikey});
+
+        // Find all posts which match the query
+        return postModel.aggregate([
+            {$match: {'claps.user': userid}},
+            {$skip: start},
+            {$limit: end},
+
+            ...aggregationPipes.totalClaps,
+            ...(usr ? aggregationPipes.ownClaps(usr.id) : [])
+        ]).exec().then(posts => {
+            if (posts) {
+                return posts;
+            } else {
+                throw errors.post.notFound;
+            }
+        });
     }
 };
