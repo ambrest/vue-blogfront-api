@@ -12,7 +12,7 @@
     "author": "Ambrest Designs LLC",
     "license": "MIT",
     "dependencies": {
-        "bcrypt": "^3.0.4",
+        "bcrypt": "^5.0.0",
         "compression": "^1.7.3",
         "connect-history-api-fallback": "^1.5.0",
         "cors": "^2.8.5",
